@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国公立合格までの逆算設計図</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f1f5f9; color: #1e293b;
+    min-height: 100vh; padding: 24px 16px 60px;
+  }
+
+  .header { text-align: center; margin-bottom: 32px; }
+  .header-sub { font-size: 11px; letter-spacing: 6px; color: #0891b2; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+  .header h1 {
+    font-size: clamp(22px, 5vw, 36px); font-weight: 900;
+    background: linear-gradient(135deg, #1e293b 0%, #0891b2 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px;
+  }
+  .header p { color: #64748b; font-size: 13px; margin-top: 8px; }
+  .edition-badge {
+    display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 999px;
+    background: #e0f2fe; color: #0891b2; font-size: 12px; font-weight: 700; border: 1px solid #bae6fd;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; display: grid; gap: 20px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .card { background: #fff; border-radius: 16px; padding: 20px 24px; border: 1px solid #e2e8f0; }
+  .card-label { font-size: 11px; color: #0891b2; font-weight: 700; letter-spacing: 2px; margin-bottom: 14px; text-transform: uppercase; }
+  .card-note { font-size: 11px; color: #94a3b8; margin-top: 10px; line-height: 1.6; }
+  .section-sub { font-size: 12px; color: #475569; font-weight: 700; margin: 16px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
+
+  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; font-family: inherit; transition: all 0.15s; background: #e2e8f0; color: #64748b; }
+  .btn.active { background: #0891b2; color: #fff; }
+  .btn.disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .mode-card { background: #fff; border-radius: 16px; padding: 16px 24px; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .mode-label { font-size: 11px; color: #0891b2; font-weight: 700; letter-spacing: 2px; white-space: nowrap; }
+  .mode-desc { font-size: 11px; color: #94a3b8; }
+
+  .science-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .science-select-label { font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 8px; }
+
+  /* レベル凡例 */
+  .level-legend { background: #f8fafc; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: grid; gap: 4px; }
+  .legend-row { display: flex; gap: 10px; align-items: baseline; }
+  .legend-lv { font-size: 11px; font-weight: 700; color: #0891b2; width: 30px; flex-shrink: 0; }
+  .legend-txt { font-size: 11px; color: #64748b; }
+
+  /* 科目スライダー共通 */
+  .subject-row { margin-bottom: 18px; }
+  .subject-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap; }
+  .subject-name { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .subject-meta { font-size: 11px; color: #0891b2; }
+
+  /* 共テ/二次トグル */
+  .exam-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; flex-shrink: 0; }
+  .exam-toggle button { padding: 4px 10px; border: none; cursor: pointer; font-size: 11px; font-weight: 700; font-family: inherit; transition: all 0.15s; background: #f1f5f9; color: #94a3b8; line-height: 1.4; }
+  .exam-toggle button.active-both  { background: #0891b2; color: #fff; }
+  .exam-toggle button.active-kyotu { background: #e0f2fe; color: #0891b2; }
+  .exam-toggle button:first-child { border-right: 1px solid #e2e8f0; }
+
+  .level-bar { display: flex; gap: 4px; margin-bottom: 6px; }
+  .level-cell {
+    flex: 1; height: 34px; border-radius: 6px; cursor: pointer;
+    background: #e2e8f0; border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1px;
+    font-size: 11px; color: #94a3b8; font-weight: 700; transition: all 0.15s; user-select: none;
+  }
+  .level-cell .cell-num { font-size: 12px; font-weight: 700; }
+  .level-cell .cell-tag { font-size: 9px; font-weight: 400; }
+  .level-cell.filled    { background: #0891b2; color: #fff; }
+  .level-cell.achieved  { background: #22c55e; color: #fff; }
+  .level-cell.target-border { border-color: #0891b2 !important; }
+  .level-desc { font-size: 11px; color: #64748b; }
+
+  /* 共テのみ科目の行スタイル */
+  .subject-row.kyotu-only .subject-name { color: #0891b2; }
+  .subject-row.kyotu-only .level-cell.filled { background: #0e7490; }
+
+  /* 共テ専用科目セクション */
+  .kyotu-section {
+    background: #f0f9ff; border-radius: 12px;
+    padding: 14px 16px; border: 1px solid #bae6fd; margin-bottom: 4px;
+  }
+  .kyotu-section-title {
+    font-size: 11px; font-weight: 700; color: #0891b2;
+    letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .kyotu-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    background: #e0f2fe; color: #0891b2; font-size: 10px; font-weight: 700;
+    border: 1px solid #bae6fd;
+  }
+
+  /* 共テ専用科目チェック */
+  .kyotu-subject-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .kyotu-toggle-btn {
+    padding: 5px 12px; border-radius: 8px; border: 1px solid #bae6fd;
+    cursor: pointer; font-size: 12px; font-weight: 700; font-family: inherit;
+    background: #fff; color: #94a3b8; transition: all 0.15s; white-space: nowrap;
+  }
+  .kyotu-toggle-btn.on { background: #0891b2; color: #fff; border-color: #0891b2; }
+  .kyotu-subject-detail { flex: 1; min-width: 200px; }
+  .kyotu-subject-name { font-size: 13px; font-weight: 700; color: #0e7490; margin-bottom: 6px; }
+
+  /* 結果カード */
+  .result-card { background: #fff; border-radius: 16px; padding: 24px; border: 2px solid #e2e8f0; transition: border-color 0.3s; }
+  .result-main { text-align: center; padding: 24px 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 20px; }
+  .result-context { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+  .result-number { font-size: clamp(48px, 10vw, 72px); font-weight: 900; line-height: 1; }
+  .result-unit { font-size: 18px; font-weight: 400; color: #64748b; }
+  .result-badge { display: inline-block; margin-top: 12px; padding: 6px 20px; border-radius: 999px; font-size: 14px; font-weight: 700; }
+
+  .split-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .split-box { border-radius: 12px; padding: 16px; text-align: center; }
+  .split-box.kyotu { background: #e0f2fe; border: 1px solid #bae6fd; }
+  .split-box.niji  { background: #fef3c7; border: 1px solid #fde68a; }
+  .split-title { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+  .split-box.kyotu .split-title { color: #0891b2; }
+  .split-box.niji  .split-title { color: #d97706; }
+  .split-hours { font-size: 26px; font-weight: 900; line-height: 1; }
+  .split-box.kyotu .split-hours { color: #0891b2; }
+  .split-box.niji  .split-hours { color: #d97706; }
+  .split-unit { font-size: 12px; font-weight: 400; }
+  .split-sub  { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .split-ratio { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+
+  .breakdown-section-title { font-size: 11px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; margin: 0 0 10px; }
+  .breakdown-divider { font-size: 10px; color: #94a3b8; font-weight: 700; letter-spacing: 1px; margin: 12px 0 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; }
+  .breakdown-row { display: grid; grid-template-columns: 100px 1fr 100px; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .breakdown-name { font-size: 13px; font-weight: 700; color: #475569; }
+  .breakdown-tag { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 4px; vertical-align: middle; }
+  .tag-both  { background: #e0f2fe; color: #0891b2; }
+  .tag-kyotu { background: #f0fdf4; color: #16a34a; }
+  .breakdown-bar-bg { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+  .breakdown-bar-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+  .breakdown-value { font-size: 13px; font-weight: 700; text-align: right; }
+
+  .note { margin-top: 20px; padding: 16px; background: #f1f5f9; border-radius: 10px; font-size: 11px; color: #64748b; line-height: 1.8; }
+  .note strong { color: #0891b2; }
+
+  @media (max-width: 480px) {
+    .row2, .science-row, .split-panel { grid-template-columns: 1fr; }
+    .mode-desc { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-sub">Study Design</div>
+  <h1>合格までの逆算設計図</h1>
+  <p>今の実力・時期・志望校から、1日の必要勉強時間をリアルに算出</p>
+  <div class="edition-badge">国公立大学版</div>
+</div>
+
+<div class="container">
+
+  <div class="row2">
+    <div class="card">
+      <div class="card-label">志望する学部系統</div>
+      <div class="btn-group" id="track-btns"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">志望校レベル</div>
+      <div class="btn-group" id="school-btns"></div>
+      <div class="card-note" id="school-note"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">今の時期（スタート地点）</div>
+    <div class="btn-group" id="season-btns"></div>
+  </div>
+
+  <div class="mode-card">
+    <div class="mode-label">学習ペース想定</div>
+    <div class="btn-group" id="mode-btns"></div>
+    <div class="mode-desc" id="mode-desc"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">数学（二次含む）</div>
+    <div class="btn-group" id="math-btns"></div>
+    <div class="card-note" id="math-note"></div>
+  </div>
+
+  <div class="card" id="social-card">
+    <div class="card-label">社会科目（文系）</div>
+    <div class="btn-group" id="social-btns"></div>
+  </div>
+
+  <div class="card" id="science-card" style="display:none">
+    <div class="card-label">理科科目（二次あり）</div>
+    <div class="science-row">
+      <div>
+        <div class="science-select-label">理科①</div>
+        <div class="btn-group" id="sci1-btns"></div>
+      </div>
+      <div>
+        <div class="science-select-label">理科②</div>
+        <div class="btn-group" id="sci2-btns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 科目レベル（共テ+二次） -->
+  <div class="card">
+    <div class="card-label">現在の実力レベル</div>
+    <div class="level-legend">
+      <div class="legend-row"><span class="legend-lv">Lv0</span><span class="legend-txt">未学習・未習得</span></div>
+      <div class="legend-row"><span class="legend-lv">Lv1</span><span class="legend-txt">高校入門〜入試基礎（日東駒専・産近甲龍程度）</span></div>
+      <div class="legend-row"><span class="legend-lv">Lv2</span><span class="legend-txt">入試標準〜難関（MARCH・関関同立程度）</span></div>
+      <div class="legend-row"><span class="legend-lv">Lv3</span><span class="legend-txt">入試難関〜最難関（早慶上理・難関国公立以上）</span></div>
+    </div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:16px;padding:10px 12px;background:#fffbeb;border-radius:8px;border:1px solid #fde68a;">
+      科目右上のボタンで <strong>共テ＋二次 / 共テのみ</strong> を切り替えられます
+    </div>
+
+    <!-- 主要科目スライダー -->
+    <div class="section-sub">◎ 主要科目（共テ＋二次 または 共テのみ）</div>
+    <div id="subject-sliders"></div>
+
+    <!-- 共テ専用科目 -->
+    <div class="section-sub" style="margin-top:8px">○ 共通テスト専用科目（使用する科目をオンにしてください）</div>
+    <div class="kyotu-section">
+      <div id="kyotu-subjects"></div>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div class="result-card" id="result-card">
+    <div class="card-label">RESULT — 合格までの必要量</div>
+    <div class="result-main" id="result-main"></div>
+    <div class="split-panel" id="split-panel"></div>
+    <div id="result-breakdown"></div>
+    <div class="note">
+      <strong>算出の前提：</strong>
+      1シーズン=90日。共通テスト・二次の比率はLv1=6:4、Lv2=4:6、Lv3=2:8。「共テのみ」科目は全時間を共通テスト対策に算入。楽観=下限値、標準=中間値、厳しめ=上限値。
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 定数 ────────────────────────────────────────────────────
+
+const SEASONS = [
+  "高1・3〜5月","高1・6〜8月","高1・9〜11月","高1・12〜2月",
+  "高2・3〜5月","高2・6〜8月","高2・9〜11月","高2・12〜2月",
+  "高3・3〜5月","高3・6〜8月","高3・9〜11月",
+];
+
+const SCIENCE_OPTIONS = ["物理","化学","生物","地学"];
+
+const SCHOOL_LEVELS = [
+  { key:'Lv1', label:'Lv1 地方国公立', note:'偏差値50〜55（山形・琉球・秋田・島根など）',      target:1, kyotuRatio:0.6, nijiRatio:0.4 },
+  { key:'Lv2', label:'Lv2 難関国公立', note:'偏差値55〜63（岡山・新潟・千葉・筑波・広島など）', target:2, kyotuRatio:0.4, nijiRatio:0.6 },
+  { key:'Lv3', label:'Lv3 最難関',     note:'偏差値63以上（神戸・旧帝大・東大・京大など）',     target:3, kyotuRatio:0.2, nijiRatio:0.8 },
+];
+
+const MODES = {
+  '楽観':   { desc:'効率よく進められる場合の最短見積もり', factor:0 },
+  '標準':   { desc:'平均的なペースの見積もり',             factor:0.5 },
+  '厳しめ': { desc:'定着に時間がかかる場合の最長見積もり', factor:1 },
+};
+
+const MATH_NOTE = {
+  'なし':     '二次で数学が不要な場合（共テのみ数学はONで追加可）',
+  '文系数学': 'ⅠAⅡBCまで。文系国公立向け',
+  '理系数学': 'ⅠAⅡBⅢCまで。理系国公立向け',
+};
+
+// ── 科目時間データ ───────────────────────────────────────────
+// 主要科目（共テ+二次両用）
+const HOURS = {
+  '英語':      [[427.5,630],   [247.5,450],  [495,810]],
+  '現代文':    [[112.5,180],   [45,67.5],    [112.5,180]],
+  '古文':      [[67.5,112.5],  [22.5,45],    [67.5,135]],
+  '漢文':      [[22.5,67.5],   [22.5,22.5]],
+  '文系数学':  [[360,562.5],   [112.5,247.5],[180,360]],
+  // 理系数学はLv1→2が文系より重い（ⅢCが加わるため）
+  '理系数学':  [[562.5,697.5], [180,360],    [292.5,540]],
+  '歴史':      [[180,270],     [157.5,180],  [112.5,135]],
+  '地理政経':  [[112.5,180],   [67.5,90],    [67.5,90]],
+  '物理':      [[202.5,360],   [135,202.5],  [112.5,180]],
+  '化学':      [[202.5,360],   [135,202.5],  [112.5,180]],
+  '生物':      [[202.5,360],   [135,202.5],  [112.5,180]],
+  '地学':      [[202.5,360],   [135,202.5],  [112.5,180]],
+};
+
+const MAX_LEVEL = {
+  '英語':3,'現代文':3,'古文':3,'漢文':2,
+  '文系数学':3,'理系数学':3,
+  '歴史':3,'地理政経':3,'物理':3,'化学':3,'生物':3,'地学':3,
+};
+
+// 共テ専用科目（最大Lv2、共テ対策のみ）
+// key, label, hours[phase], maxLv
+const KYOTU_ONLY_SUBJECTS = [
+  { key:'理科基礎2科目', label:'理科基礎（2科目）',     hours:[[90,135],[67.5,90]],    maxLv:2 },
+  { key:'数学1A単体',    label:'数学ⅠA（共テのみ）',   hours:[[180,270],[90,180]],    maxLv:2 },
+  { key:'数学2BC単体',   label:'数学ⅡBC（共テのみ）',  hours:[[180,270],[90,180]],    maxLv:2 },
+  { key:'社会共テ',      label:'社会（共テのみ）',       hours:[[90,180],[67.5,135]],   maxLv:2 },
+  { key:'情報1',         label:'情報Ⅰ',                 hours:[[45,90],[22.5,45]],     maxLv:2 },
+];
+
+const LEVEL_TAG  = { 1:'基礎', 2:'標準', 3:'難関' };
+const LEVEL_DESC = ['未学習・未習得','高校入門〜入試基礎','入試標準〜難関（MARCH）','入試難関〜最難関'];
+
+// ── 状態 ────────────────────────────────────────────────────
+let state = {
+  track:     '文系',
+  schoolKey: 'Lv2',
+  seasonIdx: 0,
+  mode:      '標準',
+  mathType:  'なし',
+  social:    '歴史',
+  sci1:      '物理',
+  sci2:      '化学',
+  levels:    { '英語':0,'現代文':0,'古文':0,'漢文':0,'歴史':0,'地理政経':0,'物理':0,'化学':0,'生物':0,'地学':0,'数学':0 },
+  examType:  { '英語':'both','現代文':'both','古文':'both','漢文':'both','歴史':'both','地理政経':'both','物理':'both','化学':'both','生物':'both','地学':'both','数学':'both' },
+  // 共テ専用科目：使用するかどうか + 現在レベル
+  kyotu: {
+    '理科基礎2科目': { on:false, lv:0 },
+    '数学1A単体':    { on:false, lv:0 },
+    '数学2BC単体':   { on:false, lv:0 },
+    '社会共テ':      { on:false, lv:0 },
+    '情報1':         { on:false, lv:0 },
+  },
+};
+
+// ── ユーティリティ ──────────────────────────────────────────
+
+function getSchool()  { return SCHOOL_LEVELS.find(s => s.key === state.schoolKey); }
+function mathKey()    { return state.mathType === '理系数学' ? '理系数学' : '文系数学'; }
+
+function calcH(hoursArr, fromLv, toLv) {
+  let total = 0;
+  for (let l = fromLv; l < toLv; l++) {
+    if (!hoursArr[l]) break;
+    const [mn, mx] = hoursArr[l];
+    total += mn + (mx - mn) * MODES[state.mode].factor;
+  }
+  return total;
+}
+
+function getHours(key, fromLv, toLv) { return calcH(HOURS[key] || [], fromLv, toLv); }
+
+function feasibility(hpd) {
+  if (hpd <= 0)   return { label:'すでに到達済み',    color:'#22c55e' };
+  if (hpd <= 1.5) return { label:'余裕あり',           color:'#22c55e' };
+  if (hpd <= 2.5) return { label:'標準的な努力で可能', color:'#84cc16' };
+  if (hpd <= 4.0) return { label:'相当な努力が必要',   color:'#f59e0b' };
+  if (hpd <= 6.0) return { label:'かなり厳しい',       color:'#f97316' };
+  return           { label:'現実的に困難',             color:'#ef4444' };
+}
+
+function getMainSubjects() {
+  if (state.track === '理系') {
+    const list = [
+      { label:'英語',   key:'英語' },
+      { label:'数学',   key: mathKey() },
+      { label: state.sci1, key: state.sci1 },
+      { label: state.sci2, key: state.sci2 },
+      { label:'現代文', key:'現代文' },
+      { label:'古文',   key:'古文' },
+      { label:'漢文',   key:'漢文' },
+    ];
+    return list;
+  }
+  const list = [
+    { label:'英語',   key:'英語' },
+    { label:'現代文', key:'現代文' },
+    { label:'古文',   key:'古文' },
+    { label:'漢文',   key:'漢文' },
+  ];
+  if (state.mathType !== 'なし') list.push({ label:'数学', key: mathKey() });
+  list.push({ label: state.social, key: state.social });
+  return list;
+}
+
+function getTargetLv(key) {
+  const base = getSchool().target;
+  if (key === '漢文') return Math.min(base, 2);
+  return Math.min(base, MAX_LEVEL[key] || 3);
+}
+
+function getLevel(key) {
+  if (key === '文系数学' || key === '理系数学') return state.levels['数学'] || 0;
+  return state.levels[key] || 0;
+}
+
+function setLevelState(key, val) {
+  if (key === '文系数学' || key === '理系数学') state.levels['数学'] = val;
+  else state.levels[key] = val;
+}
+
+function examKey(key) {
+  if (key === '文系数学' || key === '理系数学') return '数学';
+  return key;
+}
+
+function getExamType(key) { return state.examType[examKey(key)] || 'both'; }
+
+function toggleExamType(key) {
+  const k = examKey(key);
+  state.examType[k] = state.examType[k] === 'both' ? 'kyotu' : 'both';
+  renderSliders();
+  renderResult();
+}
+
+function getAvailableDays() { return (10 - state.seasonIdx) * 90 + 45; }
+
+// ── 描画 ────────────────────────────────────────────────────
+function renderAll() {
+  document.getElementById('track-btns').innerHTML =
+    ['文系','理系'].map(v =>
+      `<button class="btn ${state.track===v?'active':''}" onclick="setTrack('${v}')">${v}</button>`
+    ).join('');
+
+  document.getElementById('school-btns').innerHTML =
+    SCHOOL_LEVELS.map(s =>
+      `<button class="btn ${state.schoolKey===s.key?'active':''}" onclick="setSchool('${s.key}')">${s.label}</button>`
+    ).join('');
+  document.getElementById('school-note').textContent = getSchool().note;
+
+  document.getElementById('season-btns').innerHTML =
+    SEASONS.map((s,i) =>
+      `<button class="btn ${state.seasonIdx===i?'active':''}" onclick="setSeason(${i})">${s}</button>`
+    ).join('');
+
+  document.getElementById('mode-btns').innerHTML =
+    Object.keys(MODES).map(m =>
+      `<button class="btn ${state.mode===m?'active':''}" onclick="setMode('${m}')">${m}</button>`
+    ).join('');
+  document.getElementById('mode-desc').textContent = MODES[state.mode].desc;
+
+  const mathOpts = state.track === '文系' ? ['なし','文系数学','理系数学'] : ['文系数学','理系数学'];
+  document.getElementById('math-btns').innerHTML =
+    mathOpts.map(v =>
+      `<button class="btn ${state.mathType===v?'active':''}" onclick="setMathType('${v}')">${v}</button>`
+    ).join('');
+  document.getElementById('math-note').textContent = MATH_NOTE[state.mathType] || '';
+
+  const isBun = state.track === '文系';
+  document.getElementById('social-card').style.display  = isBun ? '' : 'none';
+  document.getElementById('science-card').style.display = isBun ? 'none' : '';
+
+  if (isBun) {
+    document.getElementById('social-btns').innerHTML =
+      ['歴史','地理政経'].map(v =>
+        `<button class="btn ${state.social===v?'active':''}" onclick="setSocial('${v}')">${v}</button>`
+      ).join('');
+  } else {
+    document.getElementById('sci1-btns').innerHTML =
+      SCIENCE_OPTIONS.map(v =>
+        `<button class="btn ${state.sci1===v?'active':''}" onclick="setSci(1,'${v}')">${v}</button>`
+      ).join('');
+    document.getElementById('sci2-btns').innerHTML =
+      SCIENCE_OPTIONS.map(v => {
+        const dis = v === state.sci1;
+        return `<button class="btn ${state.sci2===v?'active':''} ${dis?'disabled':''}" onclick="setSci(2,'${v}')">${v}</button>`;
+      }).join('');
+  }
+
+  renderSliders();
+  renderKyotuSubjects();
+  renderResult();
+}
+
+function renderSliders() {
+  const list = getMainSubjects();
+  document.getElementById('subject-sliders').innerHTML = list.map(({label, key}) => {
+    const targetLv  = getTargetLv(key);
+    const currentLv = getLevel(key);
+    const achieved  = currentLv >= targetLv;
+    const max       = MAX_LEVEL[key] || 3;
+    const etype     = getExamType(key);
+
+    const cells = Array.from({length: max}, (_,i) => {
+      const lv = i + 1;
+      let cls = 'level-cell';
+      if (i < currentLv) cls += achieved ? ' achieved' : ' filled';
+      if (lv === targetLv && !achieved) cls += ' target-border';
+      return `<div class="${cls}" onclick="toggleLevel('${key}',${i})">
+        <span class="cell-num">${lv}</span>
+        <span class="cell-tag">${LEVEL_TAG[lv]||''}</span>
+      </div>`;
+    }).join('');
+
+    const toggleHtml = `
+      <div class="exam-toggle">
+        <button class="${etype==='both'?'active-both':''}"  onclick="toggleExamType('${key}')">共テ＋二次</button>
+        <button class="${etype==='kyotu'?'active-kyotu':''}" onclick="toggleExamType('${key}')">共テのみ</button>
+      </div>`;
+
+    const rowCls = etype === 'kyotu' ? 'subject-row kyotu-only' : 'subject-row';
+    return `
+      <div class="${rowCls}">
+        <div class="subject-header">
+          <span class="subject-name">${label}</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="subject-meta">目標 Lv${targetLv} ｜ 現在 Lv${currentLv}</span>
+            ${toggleHtml}
+          </div>
+        </div>
+        <div class="level-bar">${cells}</div>
+        <div class="level-desc">Lv${currentLv}: ${LEVEL_DESC[currentLv]||'—'}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderKyotuSubjects() {
+  document.getElementById('kyotu-subjects').innerHTML =
+    KYOTU_ONLY_SUBJECTS.map(subj => {
+      const s      = state.kyotu[subj.key];
+      const isOn   = s.on;
+      const maxLv  = subj.maxLv;
+      const targetLv = Math.min(getSchool().target, maxLv);
+
+      const cells = isOn ? Array.from({length: maxLv}, (_,i) => {
+        const lv = i + 1;
+        const achieved = s.lv >= targetLv;
+        let cls = 'level-cell';
+        if (i < s.lv) cls += achieved ? ' achieved' : ' filled';
+        if (lv === targetLv && !achieved) cls += ' target-border';
+        return `<div class="${cls}" onclick="toggleKyotuLevel('${subj.key}',${i})">
+          <span class="cell-num">${lv}</span>
+          <span class="cell-tag">${LEVEL_TAG[lv]||''}</span>
+        </div>`;
+      }).join('') : '';
+
+      return `
+        <div class="kyotu-subject-row">
+          <button class="kyotu-toggle-btn ${isOn?'on':''}" onclick="toggleKyotuOn('${subj.key}')">
+            ${isOn ? 'ON' : 'OFF'}
+          </button>
+          <div class="kyotu-subject-detail">
+            <div class="kyotu-subject-name">${subj.label}
+              <span class="kyotu-badge">共テのみ</span>
+            </div>
+            ${isOn ? `
+              <div class="level-bar">${cells}</div>
+              <div class="level-desc" style="font-size:11px;color:#64748b">
+                Lv${s.lv}: ${LEVEL_DESC[s.lv]||'—'} ｜ 目標 Lv${targetLv}
+              </div>
+            ` : `<div style="font-size:11px;color:#94a3b8">OFFの場合は計算に含まれません</div>`}
+          </div>
+        </div>`;
+    }).join('');
+}
+
+function renderResult() {
+  const list   = getMainSubjects();
+  const school = getSchool();
+  const days   = getAvailableDays();
+  const months = Math.round(days / 30);
+
+  // 主要科目
+  const mainBreakdown = list.map(({label, key}) => {
+    const targetLv  = getTargetLv(key);
+    const currentLv = Math.min(getLevel(key), targetLv);
+    const hours     = getHours(key, currentLv, targetLv);
+    const hpd       = days > 0 ? hours / days : 999;
+    const etype     = getExamType(key);
+    return { label, hpd, hours, etype, achieved: getLevel(key) >= targetLv };
+  });
+
+  // 共テ専用科目
+  const kyotuBreakdown = KYOTU_ONLY_SUBJECTS
+    .filter(subj => state.kyotu[subj.key].on)
+    .map(subj => {
+      const s        = state.kyotu[subj.key];
+      const targetLv = Math.min(getSchool().target, subj.maxLv);
+      const currentLv= Math.min(s.lv, targetLv);
+      const hours    = calcH(subj.hours, currentLv, targetLv);
+      const hpd      = days > 0 ? hours / days : 999;
+      return { label: subj.label, hpd, hours, etype:'kyotu', achieved: s.lv >= targetLv };
+    });
+
+  const allBreakdown = [...mainBreakdown, ...kyotuBreakdown];
+  const totalHpd = allBreakdown.reduce((s,b) => s + b.hpd, 0);
+  const info = feasibility(totalHpd);
+
+  // 共テ・二次分割
+  let kyotuHours = 0, nijiHours = 0;
+  allBreakdown.forEach(b => {
+    if (b.etype === 'kyotu') {
+      kyotuHours += b.hours;
+    } else {
+      kyotuHours += b.hours * school.kyotuRatio;
+      nijiHours  += b.hours * school.nijiRatio;
+    }
+  });
+  const kyotuHpd = days > 0 ? kyotuHours / days : 999;
+  const nijiHpd  = days > 0 ? nijiHours  / days : 999;
+
+  document.getElementById('result-card').style.borderColor = info.color + '88';
+
+  document.getElementById('result-main').innerHTML = `
+    <div class="result-context">${SEASONS[state.seasonIdx]}スタート・${state.mode}想定 → 残り約${months}ヶ月（${days}日）</div>
+    <div class="result-number" style="color:${info.color}">
+      ${totalHpd > 99 ? '—' : totalHpd.toFixed(1)}<span class="result-unit"> h / 日</span>
+    </div>
+    <div class="result-badge" style="background:${info.color}20;color:${info.color}">${info.label}</div>
+  `;
+
+  const ratioLabel = `時間比率 共テ ${Math.round(school.kyotuRatio*10)} : 二次 ${Math.round(school.nijiRatio*10)}`;
+  document.getElementById('split-panel').innerHTML = `
+    <div class="split-box kyotu">
+      <div class="split-title">共通テスト対策</div>
+      <div class="split-hours">${kyotuHpd > 99 ? '—' : kyotuHpd.toFixed(1)}<span class="split-unit"> h/日</span></div>
+      <div class="split-sub">目安 ${Math.round(kyotuHours)}h 相当</div>
+      <div class="split-ratio">${ratioLabel}</div>
+    </div>
+    <div class="split-box niji">
+      <div class="split-title">二次試験対策</div>
+      <div class="split-hours">${nijiHpd > 99 ? '—' : nijiHpd.toFixed(1)}<span class="split-unit"> h/日</span></div>
+      <div class="split-sub">目安 ${Math.round(nijiHours)}h 相当</div>
+      <div class="split-ratio">${ratioLabel}</div>
+    </div>
+  `;
+
+  const makeBreakdownRow = ({label, hpd, etype, achieved}) => {
+    const fi  = feasibility(hpd);
+    const w   = achieved ? 100 : Math.min(100, (hpd/10)*100);
+    const val = achieved ? '達成済み' : hpd > 50 ? '超困難' : `${hpd.toFixed(1)}h/日`;
+    const tag = etype === 'kyotu'
+      ? `<span class="breakdown-tag tag-kyotu">共テのみ</span>`
+      : `<span class="breakdown-tag tag-both">共テ＋二次</span>`;
+    return `
+      <div class="breakdown-row">
+        <div class="breakdown-name">${label}${tag}</div>
+        <div class="breakdown-bar-bg">
+          <div class="breakdown-bar-fill" style="width:${w}%;background:${achieved?'#22c55e66':fi.color}"></div>
+        </div>
+        <div class="breakdown-value" style="color:${fi.color}">${val}</div>
+      </div>`;
+  };
+
+  let breakdownHtml = `<div class="breakdown-section-title">科目別 内訳</div>`;
+  breakdownHtml += mainBreakdown.map(makeBreakdownRow).join('');
+  if (kyotuBreakdown.length > 0) {
+    breakdownHtml += `<div class="breakdown-divider">共通テスト専用科目</div>`;
+    breakdownHtml += kyotuBreakdown.map(makeBreakdownRow).join('');
+  }
+  document.getElementById('result-breakdown').innerHTML = breakdownHtml;
+}
+
+// ── イベントハンドラ ────────────────────────────────────────
+function setTrack(v) {
+  state.track = v;
+  if (v === '理系' && state.mathType === 'なし') state.mathType = '理系数学';
+  renderAll();
+}
+function setSchool(v)   { state.schoolKey = v; renderAll(); }
+function setSeason(i)   { state.seasonIdx = i; renderAll(); }
+function setMode(v)     { state.mode = v; renderAll(); }
+function setMathType(v) { state.mathType = v; renderAll(); }
+function setSocial(v)   { state.social = v; renderAll(); }
+
+function setSci(num, val) {
+  if (num === 1) {
+    state.sci1 = val;
+    if (state.sci2 === val) state.sci2 = SCIENCE_OPTIONS.find(s => s !== val);
+  } else {
+    if (val === state.sci1) return;
+    state.sci2 = val;
+  }
+  renderAll();
+}
+
+function toggleLevel(key, i) {
+  const cur = getLevel(key);
+  setLevelState(key, cur === i+1 ? i : i+1);
+  renderSliders();
+  renderResult();
+}
+
+function toggleKyotuOn(key) {
+  state.kyotu[key].on = !state.kyotu[key].on;
+  renderKyotuSubjects();
+  renderResult();
+}
+
+function toggleKyotuLevel(key, i) {
+  const cur = state.kyotu[key].lv;
+  state.kyotu[key].lv = cur === i+1 ? i : i+1;
+  renderKyotuSubjects();
+  renderResult();
+}
+
+// ── 初期化 ──────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>

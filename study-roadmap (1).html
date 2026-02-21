@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合格までの逆算設計図</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f1f5f9; color: #1e293b;
+    min-height: 100vh; padding: 24px 16px 60px;
+  }
+
+  .header { text-align: center; margin-bottom: 32px; }
+  .header-sub {
+    font-size: 11px; letter-spacing: 6px; color: #6366f1;
+    text-transform: uppercase; font-weight: 700; margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: clamp(22px, 5vw, 36px); font-weight: 900;
+    background: linear-gradient(135deg, #1e293b 0%, #6366f1 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+  }
+  .header p { color: #64748b; font-size: 13px; margin-top: 8px; }
+
+  .container { max-width: 720px; margin: 0 auto; display: grid; gap: 20px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .card {
+    background: #fff; border-radius: 16px;
+    padding: 20px 24px; border: 1px solid #e2e8f0;
+  }
+  .card-label {
+    font-size: 11px; color: #6366f1; font-weight: 700;
+    letter-spacing: 2px; margin-bottom: 14px; text-transform: uppercase;
+  }
+  .card-note { font-size: 11px; color: #94a3b8; margin-top: 10px; line-height: 1.6; }
+
+  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    padding: 8px 18px; border-radius: 8px; border: none;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    font-family: inherit; transition: all 0.15s;
+    background: #e2e8f0; color: #64748b;
+  }
+  .btn.active { background: #6366f1; color: #fff; }
+  .btn.disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* モード選択 */
+  .mode-card {
+    background: #fff; border-radius: 16px;
+    padding: 20px 24px; border: 1px solid #e2e8f0;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  .mode-label { font-size: 11px; color: #6366f1; font-weight: 700; letter-spacing: 2px; white-space: nowrap; }
+  .mode-desc { font-size: 11px; color: #94a3b8; margin-left: auto; }
+
+  /* レベル凡例 */
+  .level-legend {
+    background: #f8fafc; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 20px;
+    display: grid; gap: 4px;
+  }
+  .legend-row { display: flex; gap: 10px; align-items: baseline; }
+  .legend-lv { font-size: 11px; font-weight: 700; color: #6366f1; width: 30px; flex-shrink: 0; }
+  .legend-txt { font-size: 11px; color: #64748b; }
+
+  /* 科目スライダー */
+  .subject-row { margin-bottom: 22px; }
+  .subject-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 8px;
+  }
+  .subject-name { font-size: 15px; font-weight: 700; color: #1e293b; }
+  .subject-meta { font-size: 11px; color: #6366f1; }
+
+  .level-bar { display: flex; gap: 4px; margin-bottom: 6px; }
+  .level-cell {
+    flex: 1; height: 36px; border-radius: 6px; cursor: pointer;
+    background: #e2e8f0; border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #94a3b8; font-weight: 700;
+    transition: all 0.15s; user-select: none; flex-direction: column; gap: 1px;
+  }
+  .level-cell .cell-num { font-size: 12px; font-weight: 700; }
+  .level-cell .cell-tag { font-size: 9px; font-weight: 400; }
+  .level-cell.filled   { background: #6366f1; color: #fff; }
+  .level-cell.achieved { background: #22c55e; color: #fff; }
+  .level-cell.target-border { border-color: #6366f1 !important; }
+  .level-desc { font-size: 11px; color: #64748b; }
+
+  /* 理科選択 */
+  .science-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .science-select-label { font-size: 12px; color: #64748b; font-weight: 700; margin-bottom: 8px; }
+
+  /* 結果 */
+  .result-card {
+    background: #fff; border-radius: 16px;
+    padding: 24px; border: 2px solid #e2e8f0; transition: border-color 0.3s;
+  }
+  .result-main {
+    text-align: center; padding: 24px 0;
+    border-bottom: 1px solid #e2e8f0; margin-bottom: 24px;
+  }
+  .result-context { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+  .result-number { font-size: clamp(48px, 10vw, 72px); font-weight: 900; line-height: 1; }
+  .result-unit { font-size: 18px; font-weight: 400; color: #64748b; }
+  .result-badge {
+    display: inline-block; margin-top: 12px;
+    padding: 6px 20px; border-radius: 999px; font-size: 14px; font-weight: 700;
+  }
+  .breakdown-section-title {
+    font-size: 11px; color: #94a3b8; font-weight: 700;
+    letter-spacing: 1px; margin: 16px 0 10px;
+  }
+  .breakdown-row {
+    display: grid; grid-template-columns: 90px 1fr 90px;
+    align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .breakdown-name { font-size: 13px; font-weight: 700; color: #475569; }
+  .breakdown-bar-bg { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+  .breakdown-bar-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+  .breakdown-value { font-size: 13px; font-weight: 700; text-align: right; }
+
+  .note {
+    margin-top: 24px; padding: 16px; background: #f1f5f9;
+    border-radius: 10px; font-size: 11px; color: #64748b; line-height: 1.8;
+  }
+  .note strong { color: #6366f1; }
+
+  @media (max-width: 480px) {
+    .row2, .science-row { grid-template-columns: 1fr; }
+    .mode-desc { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-sub">Study Design</div>
+  <h1>合格までの逆算設計図</h1>
+  <p>今の実力・時期・志望校から、1日の必要勉強時間をリアルに算出</p>
+</div>
+
+<div class="container">
+
+  <!-- 文理・志望校 -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-label">志望する学部系統</div>
+      <div class="btn-group" id="track-btns"></div>
+    </div>
+    <div class="card">
+      <div class="card-label">志望校レベル</div>
+      <div class="btn-group" id="school-btns"></div>
+    </div>
+  </div>
+
+  <!-- 時期 -->
+  <div class="card">
+    <div class="card-label">今の時期（スタート地点）</div>
+    <div class="btn-group" id="season-btns"></div>
+  </div>
+
+  <!-- 想定モード -->
+  <div class="mode-card">
+    <div class="mode-label">学習ペース想定</div>
+    <div class="btn-group" id="mode-btns"></div>
+    <div class="mode-desc" id="mode-desc"></div>
+  </div>
+
+  <!-- 数学タイプ -->
+  <div class="card">
+    <div class="card-label">数学</div>
+    <div class="btn-group" id="math-btns"></div>
+    <div class="card-note" id="math-note"></div>
+  </div>
+
+  <!-- 社会（文系） -->
+  <div class="card" id="social-card">
+    <div class="card-label">社会科目</div>
+    <div class="btn-group" id="social-btns"></div>
+  </div>
+
+  <!-- 理科（理系） -->
+  <div class="card" id="science-card" style="display:none">
+    <div class="card-label">理科科目の選択</div>
+    <div class="science-row">
+      <div>
+        <div class="science-select-label">理科①</div>
+        <div class="btn-group" id="sci1-btns"></div>
+      </div>
+      <div>
+        <div class="science-select-label">理科②</div>
+        <div class="btn-group" id="sci2-btns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 科目レベル -->
+  <div class="card">
+    <div class="card-label">現在の実力レベル</div>
+    <div class="level-legend">
+      <div class="legend-row"><span class="legend-lv">Lv0</span><span class="legend-txt">未学習・未習得</span></div>
+      <div class="legend-row"><span class="legend-lv">Lv1</span><span class="legend-txt">高校入門〜入試基礎（定期テスト〜日東駒専・産近甲龍程度）</span></div>
+      <div class="legend-row"><span class="legend-lv">Lv2</span><span class="legend-txt">入試標準〜難関（MARCH・関関同立程度）</span></div>
+      <div class="legend-row"><span class="legend-lv">Lv3</span><span class="legend-txt">入試難関〜最難関（早慶上理程度）</span></div>
+    </div>
+    <div id="subject-sliders"></div>
+  </div>
+
+  <!-- 結果 -->
+  <div class="result-card" id="result-card">
+    <div class="card-label">RESULT — 合格までの必要量</div>
+    <div class="result-main" id="result-main"></div>
+    <div id="result-breakdown"></div>
+    <div class="note">
+      <strong>算出の前提：</strong>
+      1シーズン=90日。楽観=学習効率が高い場合の下限、標準=平均的な場合、厳しめ=効率が低い・定着に時間がかかる場合の上限。全科目を同時並行で勉強することを前提としています。
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 定数 ────────────────────────────────────────────────────
+
+const SEASONS = [
+  "高1・3〜5月","高1・6〜8月","高1・9〜11月","高1・12〜2月",
+  "高2・3〜5月","高2・6〜8月","高2・9〜11月","高2・12〜2月",
+  "高3・3〜5月","高3・6〜8月","高3・9〜11月",
+];
+
+const SCIENCE_OPTIONS = ["物理","化学","生物"];
+
+const MODES = {
+  楽観:   { desc: "効率よく進められる場合の最短見積もり", factor: 0 },
+  標準:   { desc: "平均的なペースの見積もり",             factor: 0.5 },
+  厳しめ: { desc: "定着に時間がかかる場合の最長見積もり", factor: 1 },
+};
+
+// ── 時間データ ───────────────────────────────────────────────
+// HOURS[key][fromLevel] = [minHours, maxHours]
+// 全科目共通：Lv0→1, Lv1→2, Lv2→3
+// 漢文のみ Lv0→1, Lv1→2 で打ち止め（最大Lv2）
+
+const HOURS = {
+  英語: [
+    [427.5, 630],    // Lv0→1
+    [247.5, 450],    // Lv1→2
+    [495,   810],    // Lv2→3
+  ],
+  現代文: [
+    [112.5, 180],
+    [45,    67.5],
+    [112.5, 180],
+  ],
+  古文: [
+    [67.5,  112.5],
+    [22.5,  45],
+    [67.5,  135],
+  ],
+  漢文: [
+    [22.5,  67.5],
+    [22.5,  22.5],   // Lv1→2 が最大
+  ],
+  数学_文系: [
+    [360,   562.5],
+    [112.5, 247.5],
+    [180,   360],    // Lv2→3（早慶文系）
+  ],
+  数学_理系: [
+    [562.5, 697.5],
+    [112.5, 247.5],
+    [292.5, 540],
+  ],
+  歴史: [
+    [180,   270],
+    [157.5, 180],
+    [112.5, 135],
+  ],
+  地理政経: [
+    [112.5, 180],
+    [67.5,  90],
+    [67.5,  90],
+  ],
+  物理: [
+    [202.5, 360],
+    [135,   202.5],
+    [112.5, 180],
+  ],
+  化学: [
+    [202.5, 360],
+    [135,   202.5],
+    [112.5, 180],
+  ],
+  生物: [
+    [202.5, 360],
+    [135,   202.5],
+    [112.5, 180],
+  ],
+};
+
+// 最大レベル（漢文のみ2、他は3）
+const MAX_LEVEL = {
+  英語:3, 現代文:3, 古文:3, 漢文:2,
+  数学_文系:3, 数学_理系:3,
+  歴史:3, 地理政経:3,
+  物理:3, 化学:3, 生物:3,
+};
+
+// 短いタグ（セル内表示用）
+const LEVEL_TAG = {
+  1: "基礎", 2: "標準", 3: "難関",
+};
+
+// 志望校ごとの目標レベル
+// MARCH → 最大Lv2、早慶 → 最大Lv3
+const BASE_TARGET = {
+  文系: { 早慶:3, MARCH:2 },
+  理系: { 早慶:3, MARCH:2 },
+};
+
+// 数学タイプ補足
+const MATH_NOTE = {
+  なし:     "私立文系で数学なし受験の場合",
+  文系数学: "ⅠAⅡBCまで。私立文系・国公立文系・一部理系向け",
+  理系数学: "ⅠAⅡBⅢCまで。理系大多数が対象",
+};
+
+// ── 状態 ────────────────────────────────────────────────────
+let state = {
+  track:     '文系',
+  school:    '早慶',
+  seasonIdx: 0,
+  mode:      '標準',
+  mathType:  'なし',
+  social:    '歴史',
+  sci1:      '物理',
+  sci2:      '化学',
+  levels: {
+    英語:0, 現代文:0, 古文:0, 漢文:0,
+    歴史:0, 地理政経:0,
+    物理:0, 化学:0, 生物:0,
+    数学:0,
+  },
+};
+
+// ── ユーティリティ ──────────────────────────────────────────
+
+function mathKey() {
+  return state.mathType === '理系数学' ? '数学_理系' : '数学_文系';
+}
+
+function getHours(key, fromLv, toLv) {
+  const h = HOURS[key]; if (!h) return 0;
+  let total = 0;
+  for (let l = fromLv; l < toLv; l++) {
+    if (!h[l]) break;
+    const [mn, mx] = h[l];
+    const factor = MODES[state.mode].factor;
+    total += mn + (mx - mn) * factor;
+  }
+  return total;
+}
+
+function feasibility(hpd) {
+  if (hpd <= 0)   return { label:"すでに到達済み",    color:"#22c55e" };
+  if (hpd <= 1.5) return { label:"余裕あり",           color:"#22c55e" };
+  if (hpd <= 2.5) return { label:"標準的な努力で可能", color:"#84cc16" };
+  if (hpd <= 4.0) return { label:"相当な努力が必要",   color:"#f59e0b" };
+  if (hpd <= 6.0) return { label:"かなり厳しい",       color:"#f97316" };
+  return           { label:"現実的に困難",             color:"#ef4444" };
+}
+
+// 表示科目リスト → { label, key }
+function getSubjectList() {
+  const list = [];
+  if (state.track === '文系') {
+    list.push({ label:'英語',      key:'英語' });
+    if (state.mathType !== 'なし')
+      list.push({ label:'数学',    key: mathKey() });
+    list.push({ label:'現代文',    key:'現代文' });
+    list.push({ label:'古文',      key:'古文' });
+    list.push({ label:'漢文',      key:'漢文' });
+    list.push({ label: state.social, key: state.social });
+  } else {
+    list.push({ label:'英語',      key:'英語' });
+    list.push({ label:'数学',      key: mathKey() });
+    list.push({ label: state.sci1, key: state.sci1 });
+    list.push({ label: state.sci2, key: state.sci2 });
+  }
+  return list;
+}
+
+function getTargetLv(key) {
+  const base = BASE_TARGET[state.track][state.school];
+  // 漢文はMARCH/早慶に関わらず最大Lv2
+  if (key === '漢文') return Math.min(base, 2);
+  return Math.min(base, MAX_LEVEL[key] || 3);
+}
+
+function getLevel(key) {
+  if (key === '数学_文系' || key === '数学_理系') return state.levels['数学'] || 0;
+  return state.levels[key] || 0;
+}
+
+function setLevel(key, val) {
+  if (key === '数学_文系' || key === '数学_理系') state.levels['数学'] = val;
+  else state.levels[key] = val;
+}
+
+function getAvailableDays() { return (10 - state.seasonIdx) * 90 + 45; }
+
+// ── 描画 ────────────────────────────────────────────────────
+function renderAll() {
+  // 文理
+  document.getElementById('track-btns').innerHTML =
+    ['文系','理系'].map(v =>
+      `<button class="btn ${state.track===v?'active':''}" onclick="setTrack('${v}')">${v}</button>`
+    ).join('');
+
+  // 志望校
+  document.getElementById('school-btns').innerHTML =
+    ['早慶','MARCH'].map(v =>
+      `<button class="btn ${state.school===v?'active':''}" onclick="setSchool('${v}')">${v}</button>`
+    ).join('');
+
+  // 時期
+  document.getElementById('season-btns').innerHTML =
+    SEASONS.map((s,i) =>
+      `<button class="btn ${state.seasonIdx===i?'active':''}" onclick="setSeason(${i})">${s}</button>`
+    ).join('');
+
+  // モード
+  document.getElementById('mode-btns').innerHTML =
+    Object.keys(MODES).map(m =>
+      `<button class="btn ${state.mode===m?'active':''}" onclick="setMode('${m}')">${m}</button>`
+    ).join('');
+  document.getElementById('mode-desc').textContent = MODES[state.mode].desc;
+
+  // 数学
+  const mathOpts = state.track === '文系'
+    ? ['なし','文系数学','理系数学']
+    : ['文系数学','理系数学'];
+  document.getElementById('math-btns').innerHTML =
+    mathOpts.map(v =>
+      `<button class="btn ${state.mathType===v?'active':''}" onclick="setMathType('${v}')">${v}</button>`
+    ).join('');
+  document.getElementById('math-note').textContent = MATH_NOTE[state.mathType] || '';
+
+  // 社会・理科
+  const isBun = state.track === '文系';
+  document.getElementById('social-card').style.display  = isBun ? '' : 'none';
+  document.getElementById('science-card').style.display = isBun ? 'none' : '';
+
+  if (isBun) {
+    document.getElementById('social-btns').innerHTML =
+      ['歴史','地理政経'].map(v =>
+        `<button class="btn ${state.social===v?'active':''}" onclick="setSocial('${v}')">${v}</button>`
+      ).join('');
+  } else {
+    document.getElementById('sci1-btns').innerHTML =
+      SCIENCE_OPTIONS.map(v =>
+        `<button class="btn ${state.sci1===v?'active':''}" onclick="setSci(1,'${v}')">${v}</button>`
+      ).join('');
+    document.getElementById('sci2-btns').innerHTML =
+      SCIENCE_OPTIONS.map(v => {
+        const dis = v === state.sci1;
+        return `<button class="btn ${state.sci2===v?'active':''} ${dis?'disabled':''}"
+          onclick="setSci(2,'${v}')">${v}</button>`;
+      }).join('');
+  }
+
+  renderSliders();
+  renderResult();
+}
+
+function renderSliders() {
+  const list = getSubjectList();
+  document.getElementById('subject-sliders').innerHTML = list.map(({label, key}) => {
+    const targetLv  = getTargetLv(key);
+    const currentLv = getLevel(key);
+    const achieved  = currentLv >= targetLv;
+    const max       = MAX_LEVEL[key] || 3;
+
+    const cells = Array.from({length: max}, (_,i) => {
+      const lv = i + 1;
+      let cls = 'level-cell';
+      if (i < currentLv) cls += achieved ? ' achieved' : ' filled';
+      if (lv === targetLv && !achieved) cls += ' target-border';
+      const tag = LEVEL_TAG[lv] || '';
+      return `<div class="${cls}" onclick="toggleLevel('${key}',${i})">
+        <span class="cell-num">${lv}</span>
+        <span class="cell-tag">${tag}</span>
+      </div>`;
+    }).join('');
+
+    const descMap = ['未学習・未習得','高校入門〜入試基礎','入試標準〜難関（MARCH）','入試難関〜最難関（早慶）'];
+    const desc = descMap[currentLv] || '—';
+
+    return `
+      <div class="subject-row">
+        <div class="subject-header">
+          <span class="subject-name">${label}</span>
+          <span class="subject-meta">目標 Lv${targetLv} ｜ 現在 Lv${currentLv}</span>
+        </div>
+        <div class="level-bar">${cells}</div>
+        <div class="level-desc">Lv${currentLv}: ${desc}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderResult() {
+  const list = getSubjectList();
+  const days   = getAvailableDays();
+  const months = Math.round(days / 30);
+
+  const breakdown = list.map(({label, key}) => {
+    const targetLv  = getTargetLv(key);
+    const currentLv = Math.min(getLevel(key), targetLv);
+    const hours     = getHours(key, currentLv, targetLv);
+    const hpd       = days > 0 ? hours / days : 999;
+    return { label, hpd, achieved: getLevel(key) >= targetLv };
+  });
+
+  const totalHpd = breakdown.reduce((s,b) => s + b.hpd, 0);
+  const info     = feasibility(totalHpd);
+
+  document.getElementById('result-card').style.borderColor = info.color + '88';
+
+  document.getElementById('result-main').innerHTML = `
+    <div class="result-context">
+      ${SEASONS[state.seasonIdx]}スタート・${state.mode}想定 → 残り約${months}ヶ月（${days}日）
+    </div>
+    <div class="result-number" style="color:${info.color}">
+      ${totalHpd > 99 ? '—' : totalHpd.toFixed(1)}<span class="result-unit"> h / 日</span>
+    </div>
+    <div class="result-badge" style="background:${info.color}20;color:${info.color}">${info.label}</div>
+  `;
+
+  document.getElementById('result-breakdown').innerHTML =
+    `<div class="breakdown-section-title">科目別 内訳</div>` +
+    breakdown.map(({label,hpd,achieved}) => {
+      const fi  = feasibility(hpd);
+      const w   = achieved ? 100 : Math.min(100, (hpd / 10) * 100);
+      const val = achieved ? '達成済み' : hpd > 50 ? '超困難' : `${hpd.toFixed(1)}h/日`;
+      return `
+        <div class="breakdown-row">
+          <div class="breakdown-name">${label}</div>
+          <div class="breakdown-bar-bg">
+            <div class="breakdown-bar-fill" style="width:${w}%;background:${achieved?'#22c55e66':fi.color}"></div>
+          </div>
+          <div class="breakdown-value" style="color:${fi.color}">${val}</div>
+        </div>`;
+    }).join('');
+}
+
+// ── イベントハンドラ ────────────────────────────────────────
+function setTrack(v) {
+  state.track = v;
+  if (v === '理系' && state.mathType === 'なし') state.mathType = '理系数学';
+  renderAll();
+}
+function setSchool(v)   { state.school = v; renderAll(); }
+function setSeason(i)   { state.seasonIdx = i; renderAll(); }
+function setMode(v)     { state.mode = v; renderAll(); }
+function setMathType(v) { state.mathType = v; renderAll(); }
+function setSocial(v)   { state.social = v; renderAll(); }
+
+function setSci(num, val) {
+  if (num === 1) {
+    state.sci1 = val;
+    if (state.sci2 === val) state.sci2 = SCIENCE_OPTIONS.find(s => s !== val);
+  } else {
+    if (val === state.sci1) return;
+    state.sci2 = val;
+  }
+  renderAll();
+}
+
+function toggleLevel(key, i) {
+  const cur = getLevel(key);
+  // MARCHの場合は目標レベルを超えた選択をしても表示上は目標が上限なので自由に設定可
+  setLevel(key, cur === i+1 ? i : i+1);
+  renderSliders();
+  renderResult();
+}
+
+// ── 初期化 ──────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>

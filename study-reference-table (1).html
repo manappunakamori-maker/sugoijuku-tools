@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>科目別学習時間基準表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+
+  :root {
+    --indigo: #4f46e5;
+    --indigo-light: #eef2ff;
+    --indigo-mid: #c7d2fe;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --amber: #d97706;
+    --amber-light: #fffbeb;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --slate-50: #f8fafc;
+    --slate-100: #f1f5f9;
+    --slate-200: #e2e8f0;
+    --slate-400: #94a3b8;
+    --slate-600: #475569;
+    --slate-800: #1e293b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--slate-100);
+    color: var(--slate-800);
+    padding: 32px 20px 60px;
+    font-size: 14px;
+  }
+
+  .doc-header {
+    max-width: 960px; margin: 0 auto 32px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    border-bottom: 2px solid var(--indigo); padding-bottom: 16px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .doc-eyebrow {
+    font-size: 10px; letter-spacing: 4px; color: var(--indigo);
+    text-transform: uppercase; font-weight: 700; margin-bottom: 6px;
+  }
+  .doc-title {
+    font-size: clamp(20px, 3vw, 28px); font-weight: 900;
+    color: var(--slate-800); letter-spacing: -0.5px;
+  }
+  .doc-meta {
+    font-size: 11px; color: var(--slate-400); text-align: right; line-height: 1.8;
+  }
+
+  .legend-bar {
+    max-width: 960px; margin: 0 auto 20px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .legend-item {
+    flex: 1; min-width: 140px;
+    background: #fff; border-radius: 10px;
+    padding: 12px 16px; border: 1px solid var(--slate-200);
+  }
+  .lv-badge {
+    display: inline-block; padding: 2px 10px;
+    border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 6px;
+  }
+  .lv1 { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+  .lv2 { background: var(--amber-light); color: var(--amber); border: 1px solid #fde68a; }
+  .lv3 { background: var(--red-light);   color: var(--red);   border: 1px solid #fecaca; }
+  .legend-item p { font-size: 11px; color: var(--slate-600); line-height: 1.6; }
+
+  .mode-legend {
+    max-width: 960px; margin: 0 auto 24px;
+    background: #fff; border-radius: 10px;
+    padding: 14px 20px; border: 1px solid var(--slate-200);
+    display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+  }
+  .mode-legend-label { font-size: 11px; color: var(--slate-400); font-weight: 700; letter-spacing: 1px; }
+  .mode-item { display: flex; align-items: center; gap: 8px; }
+  .mode-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .mode-item span { font-size: 12px; color: var(--slate-600); }
+
+  .section-title {
+    max-width: 960px; margin: 0 auto 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: var(--indigo); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after {
+    content: ''; flex: 1; height: 1px; background: var(--indigo-mid);
+  }
+
+  .table-wrap {
+    max-width: 960px; margin: 0 auto 32px;
+    background: #fff; border-radius: 14px;
+    border: 1px solid var(--slate-200); overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead tr:first-child th {
+    background: var(--slate-800); color: #fff;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    padding: 10px 14px; text-align: center;
+  }
+  thead tr:first-child th:first-child { text-align: left; }
+
+  thead tr:last-child th {
+    background: var(--indigo-light);
+    color: var(--indigo); font-size: 11px; font-weight: 700;
+    padding: 7px 14px; text-align: center;
+    border-bottom: 2px solid var(--indigo-mid);
+  }
+  thead tr:last-child th:first-child { text-align: left; color: var(--slate-600); }
+
+  tbody tr { border-bottom: 1px solid var(--slate-100); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--slate-50); }
+
+  td.subject-cell {
+    padding: 12px 16px; font-weight: 700;
+    color: var(--slate-800); font-size: 13px; white-space: nowrap;
+  }
+
+  tr.phase-row td {
+    background: var(--slate-50); padding: 6px 16px;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--slate-400);
+  }
+
+  td.val {
+    text-align: center; padding: 12px 10px;
+    font-size: 13px; font-weight: 500; vertical-align: middle;
+  }
+  td.val .num { font-weight: 700; font-size: 15px; display: block; }
+  td.val .seas { font-size: 10px; color: var(--slate-400); display: block; margin-top: 1px; }
+
+  /* 楽観=緑、標準=琥珀、厳しめ=赤 をclassで制御 */
+  td.col-opt .num  { color: var(--green); }
+  td.col-mid .num  { color: var(--amber); }
+  td.col-pes .num  { color: var(--red); }
+
+  tr.total-row td { background: var(--indigo-light); font-weight: 700; padding: 10px 14px; }
+  tr.total-row td.subject-cell { color: var(--indigo); font-size: 13px; }
+  tr.total-row td.val .num { color: var(--indigo); }
+
+  .footnote {
+    max-width: 960px; margin: 0 auto 16px;
+    font-size: 11px; color: var(--slate-400); line-height: 1.9;
+    padding: 14px 20px; background: #fff;
+    border-radius: 10px; border: 1px solid var(--slate-200);
+  }
+  .footnote strong { color: var(--indigo); }
+
+  @media print {
+    body { background: #fff; padding: 16px; }
+    .table-wrap { break-inside: avoid; }
+  }
+  @media (max-width: 600px) {
+    td, th { padding: 8px 6px !important; font-size: 11px !important; }
+    td.val .num { font-size: 12px !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div>
+    <div class="doc-eyebrow">Study Reference</div>
+    <div class="doc-title">科目別・学習段階別　標準時間基準表</div>
+  </div>
+  <div class="doc-meta">
+    1シーズン = 90日（3ヶ月）<br>
+    シーズン数は 1日1h学習の場合の参考値
+  </div>
+</div>
+
+<div class="legend-bar">
+  <div class="legend-item">
+    <span class="lv-badge lv1">Lv 1　基礎</span>
+    <p>高校入門〜入試基礎<br>定期テスト〜日東駒専・産近甲龍程度</p>
+  </div>
+  <div class="legend-item">
+    <span class="lv-badge lv2">Lv 2　標準</span>
+    <p>入試標準〜難関<br>MARCH・関関同立程度</p>
+  </div>
+  <div class="legend-item">
+    <span class="lv-badge lv3">Lv 3　最難関</span>
+    <p>入試難関〜最難関<br>早慶上理程度</p>
+  </div>
+</div>
+
+<div class="mode-legend">
+  <span class="mode-legend-label">想定モード</span>
+  <div class="mode-item"><div class="mode-dot" style="background:#16a34a"></div><span><strong>楽観</strong>：効率よく進められる場合の最短見積もり（下限値）</span></div>
+  <div class="mode-item"><div class="mode-dot" style="background:#d97706"></div><span><strong>標準</strong>：平均的なペースの見積もり（中間値）</span></div>
+  <div class="mode-item"><div class="mode-dot" style="background:#dc2626"></div><span><strong>厳しめ</strong>：定着に時間がかかる場合の最長見積もり（上限値）</span></div>
+</div>
+
+<div class="section-title">Phase 01 &nbsp; 未学習 → Lv1（入試基礎）</div>
+<div class="table-wrap"><table id="table-phase1"></table></div>
+
+<div class="section-title">Phase 02 &nbsp; Lv1 → Lv2（MARCH・関関同立）</div>
+<div class="table-wrap"><table id="table-phase2"></table></div>
+
+<div class="section-title">Phase 03 &nbsp; Lv2 → Lv3（早慶上理）</div>
+<div class="table-wrap"><table id="table-phase3"></table></div>
+
+<div class="section-title">累計 &nbsp; 0 → 各レベル到達までの合計時間</div>
+<div class="table-wrap"><table id="table-total"></table></div>
+
+<div class="footnote">
+  <strong>※ 算出の前提：</strong>
+  各数値は1シーズン=90日を単位とし、1日の学習時間は科目単体の時間で計算しています。
+  複数科目を並行学習する場合は1日あたりの総学習時間を各科目に分配してください。
+  漢文はLv2が上限。数学は文系・理系で別集計。理科は1科目あたりの時間です（2科目選択の場合は×2）。
+  <br><br>
+  <strong>※ 時間幅について：</strong>
+  楽観・厳しめの差は個人の学習効率・定着度・使用教材・指導有無などによるばらつきを反映しています。
+</div>
+
+<script>
+// ── データ ──────────────────────────────────────────────────
+// HOURS[科目名][phase] = [下限h, 上限h]
+// phase 0: Lv0->Lv1, phase 1: Lv1->Lv2, phase 2: Lv2->Lv3
+const HOURS = {
+  '英語':       [[427.5, 630],   [247.5, 450],  [495,   810]],
+  '現代文':     [[112.5, 180],   [45,    67.5], [112.5, 180]],
+  '古文':       [[67.5,  112.5], [22.5,  45],   [67.5,  135]],
+  '漢文':       [[22.5,  67.5],  [22.5,  22.5]],           // Lv2が上限
+  '文系数学':   [[360,   562.5], [112.5, 247.5],[180,   360]],
+  '理系数学':   [[562.5, 697.5], [112.5, 247.5],[292.5, 540]],
+  '歴史':       [[180,   270],   [157.5, 180],  [112.5, 135]],
+  '地理政経':   [[112.5, 180],   [67.5,  90],   [67.5,  90]],
+  '理科(1科目)':[[202.5, 360],   [135,   202.5],[112.5, 180]],
+};
+
+// 合計行に使う文系・理系の科目リスト
+const BUN_NAMES = ['英語','現代文','古文','漢文','文系数学','歴史'];
+const RI_NAMES  = ['英語','理系数学','理科(1科目)','理科(1科目)']; // 理科2科目分
+
+// ── ユーティリティ ──────────────────────────────────────────
+function fmtH(h) {
+  return Math.round(h) + 'h';
+}
+function fmtS(h) {
+  const s = h / 90;
+  const r = Math.round(s * 4) / 4;
+  // 小数点以下の不要なゼロを除去
+  return (r % 1 === 0 ? r.toFixed(0) : r.toFixed(2).replace(/0+$/, '')) + 'S';
+}
+function mid(mn, mx) { return (mn + mx) / 2; }
+
+function makeHeader() {
+  return `<thead>
+    <tr>
+      <th rowspan="2" style="text-align:left;min-width:110px">科目</th>
+      <th colspan="2" style="color:#86efac">楽観（下限）</th>
+      <th colspan="2" style="color:#fcd34d">標準（中間）</th>
+      <th colspan="2" style="color:#fca5a5">厳しめ（上限）</th>
+    </tr>
+    <tr>
+      <th>時間</th><th>シーズン</th>
+      <th>時間</th><th>シーズン</th>
+      <th>時間</th><th>シーズン</th>
+    </tr>
+  </thead>`;
+}
+
+function makeRow(name, mn, mx, isTotal) {
+  const m = mid(mn, mx);
+  const cls = isTotal ? 'total-row' : '';
+  return `<tr class="${cls}">
+    <td class="subject-cell">${name}</td>
+    <td class="val col-opt"><span class="num">${fmtH(mn)}</span><span class="seas">${fmtS(mn)}</span></td>
+    <td class="val col-opt"><span class="num">${fmtS(mn)}</span></td>
+    <td class="val col-mid"><span class="num">${fmtH(m)}</span><span class="seas">${fmtS(m)}</span></td>
+    <td class="val col-mid"><span class="num">${fmtS(m)}</span></td>
+    <td class="val col-pes"><span class="num">${fmtH(mx)}</span><span class="seas">${fmtS(mx)}</span></td>
+    <td class="val col-pes"><span class="num">${fmtS(mx)}</span></td>
+  </tr>`;
+}
+
+function sumNames(names, phase) {
+  return names.reduce((acc, n) => {
+    const h = HOURS[n];
+    if (!h || !h[phase]) return acc;
+    return [acc[0] + h[phase][0], acc[1] + h[phase][1]];
+  }, [0, 0]);
+}
+
+// ── フェーズテーブル ─────────────────────────────────────────
+function buildPhase(tableId, phase) {
+  const rows = Object.entries(HOURS)
+    .filter(([name, h]) => h[phase] != null)
+    .map(([name, h]) => makeRow(name, h[phase][0], h[phase][1], false))
+    .join('');
+
+  const bunSum = sumNames(BUN_NAMES, phase);
+  const riSum  = sumNames(RI_NAMES, phase);
+
+  document.getElementById(tableId).innerHTML = makeHeader() + `<tbody>
+    ${rows}
+    <tr class="phase-row"><td colspan="7">文系合計目安（英語・現代文・古文・漢文・文系数学・歴史）</td></tr>
+    ${makeRow('文系 合計', bunSum[0], bunSum[1], true)}
+    <tr class="phase-row"><td colspan="7">理系合計目安（英語・理系数学・理科×2科目）</td></tr>
+    ${makeRow('理系 合計', riSum[0], riSum[1], true)}
+  </tbody>`;
+}
+
+// ── 累計テーブル ─────────────────────────────────────────────
+function buildTotal() {
+  const labels = ['Lv1 到達（入試基礎）', 'Lv2 到達（MARCH）', 'Lv3 到達（早慶）'];
+  let tbody = '<tbody>';
+
+  labels.forEach((label, phase) => {
+    tbody += `<tr class="phase-row"><td colspan="7">0 → ${label}</td></tr>`;
+
+    Object.entries(HOURS).forEach(([name, h]) => {
+      // 漢文はphase1まで
+      if (name === '漢文' && phase >= 2) return;
+
+      // 0からphaseまでの累計
+      let mn = 0, mx = 0;
+      for (let p = 0; p <= phase; p++) {
+        if (!h[p]) break;
+        mn += h[p][0];
+        mx += h[p][1];
+      }
+      tbody += makeRow(name, mn, mx, false);
+    });
+
+    // 合計行
+    const cumSum = (names) => names.reduce((acc, n) => {
+      const h = HOURS[n]; if (!h) return acc;
+      let mn = 0, mx = 0;
+      for (let p = 0; p <= phase; p++) {
+        if (!h[p]) break;
+        mn += h[p][0]; mx += h[p][1];
+      }
+      return [acc[0]+mn, acc[1]+mx];
+    }, [0,0]);
+
+    const bunSum = cumSum(BUN_NAMES);
+    const riSum  = cumSum(RI_NAMES);
+    tbody += `<tr class="phase-row"><td colspan="7">文系合計 / 理系合計</td></tr>`;
+    tbody += makeRow('文系 合計', bunSum[0], bunSum[1], true);
+    tbody += makeRow('理系 合計', riSum[0],  riSum[1],  true);
+  });
+
+  tbody += '</tbody>';
+  document.getElementById('table-total').innerHTML = makeHeader() + tbody;
+}
+
+// ── 実行 ────────────────────────────────────────────────────
+buildPhase('table-phase1', 0);
+buildPhase('table-phase2', 1);
+buildPhase('table-phase3', 2);
+buildTotal();
+</script>
+</body>
+</html>
