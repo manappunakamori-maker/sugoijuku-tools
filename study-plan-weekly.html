@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>週間学習計画｜すごい塾</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1e3a6e;--teal:#00b0b9;--teal-l:#e0f7f8;--navy-l:#e8edf5;
+  --dark:#111827;--mid:#374151;--muted:#6b7280;
+  --bg:#f4f6f9;--card:#fff;--bd:#e5e7eb;
+  --red:#ef4444;--green:#10b981;--yellow:#f59e0b;
+  --orange:#f97316;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+
+/* ===HEADER=== */
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:200;box-shadow:0 2px 10px rgba(0,0,0,.25);}
+.hdr-icon{width:28px;height:28px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.hdr-title{font-size:14px;font-weight:900;color:#fff;}.hdr-title span{color:var(--teal);}
+.hdr-actions{margin-left:auto;display:flex;gap:8px;}
+button.hdr-btn{all:initial;font-family:inherit;font-size:11px;font-weight:700;color:#fff;
+  padding:5px 12px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;cursor:pointer;
+  white-space:nowrap;transition:all .15s;}
+button.hdr-btn:hover{background:rgba(255,255,255,.1);}
+button.hdr-btn.primary{background:var(--teal);border-color:var(--teal);}
+button.hdr-btn.primary:hover{background:#009aa2;}
+
+main{max-width:900px;margin:0 auto;padding:20px 16px 80px;}
+
+/* ===SAVE STATUS=== */
+.save-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-bottom:16px;}
+.save-dot{width:7px;height:7px;border-radius:50%;background:var(--green);}
+
+/* ===SECTION CARD=== */
+.sec{background:var(--card);border-radius:14px;border:1px solid var(--bd);margin-bottom:16px;overflow:hidden;}
+.sec-hdr{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--bd);cursor:pointer;user-select:none;}
+.sec-num{width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-hdr h2{font-size:14px;font-weight:900;color:var(--navy);flex:1;}
+.sec-toggle{font-size:16px;color:var(--muted);transition:transform .2s;}
+.sec.collapsed .sec-toggle{transform:rotate(-90deg);}
+.sec-body{padding:18px;}
+.sec.collapsed .sec-body{display:none;}
+
+/* ===FORM ELEMENTS=== */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.row.trio{grid-template-columns:1fr 1fr 1fr;}
+.row.single{grid-template-columns:1fr;}
+@media(max-width:560px){.row,.row.trio{grid-template-columns:1fr;}}
+.field{display:flex;flex-direction:column;gap:5px;}
+label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  font-family:inherit;font-size:13px;padding:9px 12px;
+  border:1.5px solid var(--bd);border-radius:9px;
+  background:#fff;color:var(--dark);
+  transition:border-color .15s;outline:none;width:100%;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);}
+textarea{resize:vertical;min-height:72px;line-height:1.6;}
+.hint{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* ===DAY HOURS TABLE=== */
+.day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+@media(max-width:560px){.day-grid{grid-template-columns:repeat(4,1fr);}}
+.day-cell{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.day-label{font-size:10px;font-weight:700;color:var(--muted);}
+.day-cell input{text-align:center;padding:8px 4px;font-size:14px;font-weight:700;}
+.day-total-row{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--muted);}
+.day-total-row strong{font-size:14px;color:var(--navy);font-weight:900;}
+
+/* ===SUBJECT LIST=== */
+.subj-fixed-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px;}
+@media(max-width:560px){.subj-fixed-list{grid-template-columns:repeat(2,1fr);}}
+label.subj-check{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
+  padding:8px 10px;border:1.5px solid var(--bd);border-radius:9px;cursor:pointer;
+  transition:all .15s;color:var(--dark);}
+label.subj-check:has(input:checked){border-color:var(--teal);background:var(--teal-l);}
+label.subj-check input{accent-color:var(--teal);width:14px;height:14px;}
+
+.subj-config-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+.subj-config{background:var(--navy-l);border-radius:11px;padding:12px 14px;}
+.subj-config-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.subj-config-name{font-size:13px;font-weight:900;color:var(--navy);flex:1;}
+.subj-config-hours{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.subj-config-hours input{width:64px;text-align:center;font-weight:700;}
+.genre-list{display:flex;flex-direction:column;gap:6px;}
+.genre-row{display:flex;align-items:center;gap:8px;}
+.genre-row input[type=text]{flex:1;font-size:12px;padding:6px 10px;}
+.genre-row input[type=number]{width:64px;text-align:center;font-size:12px;padding:6px 8px;}
+.genre-hours-remain{font-size:10px;margin-top:4px;text-align:right;}
+.genre-hours-remain.ok{color:var(--green);}
+.genre-hours-remain.warn{color:var(--yellow);}
+.genre-hours-remain.over{color:var(--red);}
+button.add-genre{all:initial;font-family:inherit;font-size:11px;font-weight:700;
+  color:var(--teal);cursor:pointer;padding:5px 0;display:flex;align-items:center;gap:4px;}
+button.del-btn{all:initial;font-size:14px;color:var(--muted);cursor:pointer;line-height:1;flex-shrink:0;}
+button.del-btn:hover{color:var(--red);}
+button.add-custom-subj{all:initial;font-family:inherit;font-size:12px;font-weight:700;
+  color:var(--teal);cursor:pointer;padding:8px 12px;border:1.5px dashed var(--teal);
+  border-radius:9px;display:flex;align-items:center;gap:5px;margin-top:6px;}
+
+/* ===PRIORITY=== */
+.priority-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+label.radio-card{display:flex;align-items:flex-start;gap:10px;
+  padding:12px 14px;border:1.5px solid var(--bd);border-radius:11px;cursor:pointer;transition:all .15s;}
+label.radio-card:has(input:checked){border-color:var(--teal);background:var(--teal-l);}
+label.radio-card input{accent-color:var(--teal);margin-top:3px;flex-shrink:0;}
+.radio-card-text{display:flex;flex-direction:column;gap:2px;}
+.radio-card-title{font-size:13px;font-weight:700;color:var(--dark);}
+.radio-card-desc{font-size:11px;color:var(--muted);}
+
+/* ===MANUAL GRID=== */
+#manual-grid-wrap{overflow-x:auto;margin-top:12px;}
+.manual-grid{border-collapse:collapse;font-size:11px;width:100%;min-width:500px;}
+.manual-grid th,.manual-grid td{border:1px solid var(--bd);padding:6px 8px;text-align:center;}
+.manual-grid th{background:var(--navy-l);font-weight:700;color:var(--navy);font-size:10px;}
+.manual-grid td.subj-name{text-align:left;font-weight:700;color:var(--navy);background:var(--navy-l);white-space:nowrap;}
+.manual-grid td.total-cell{font-weight:700;color:var(--navy);}
+.manual-grid input{width:48px;text-align:center;border:none;background:transparent;font-family:inherit;font-size:11px;padding:2px;}
+.manual-grid tr.day-sum td{background:#f9f9f9;font-weight:700;}
+.cell-warn{background:#fff7ed!important;}
+.cell-over{background:#fef2f2!important;}
+
+/* ===GOAL=== */
+.goal-patterns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+@media(max-width:480px){.goal-patterns{grid-template-columns:1fr;}}
+label.goal-chip{display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border:1.5px solid var(--bd);border-radius:10px;cursor:pointer;
+  font-size:12px;font-weight:700;transition:all .15s;}
+label.goal-chip:has(input:checked){border-color:var(--teal);background:var(--teal-l);}
+label.goal-chip input{accent-color:var(--teal);}
+
+/* ===JSON PANEL=== */
+.json-panel{background:var(--navy-l);border-radius:11px;padding:14px;margin-top:12px;}
+.json-panel h3{font-size:12px;font-weight:900;color:var(--navy);margin-bottom:10px;}
+.json-panel textarea{font-family:'Courier New',monospace;font-size:10px;height:100px;background:#fff;}
+.json-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+button.action-btn{all:initial;font-family:inherit;font-size:11px;font-weight:700;
+  padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s;}
+button.action-btn.outline{color:var(--navy);border:1.5px solid var(--navy);}
+button.action-btn.outline:hover{background:var(--navy-l);}
+button.action-btn.filled{background:var(--teal);color:#fff;}
+button.action-btn.filled:hover{background:#009aa2;}
+button.action-btn.red{background:var(--red);color:#fff;}
+
+/* ===PREVIEW MODAL=== */
+#preview-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.5);
+  overflow-y:auto;padding:20px;}
+#preview-modal.open{display:block;}
+.preview-wrap{max-width:960px;margin:0 auto;}
+.preview-actions{display:flex;gap:10px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
+
+/* ===PRINT SHEET=== */
+#print-sheet{background:#fff;padding:14mm 12mm;font-family:'Noto Sans JP',sans-serif;
+  width:100%;font-size:10px;color:#111;}
+.ps-header{display:flex;justify-content:space-between;align-items:flex-end;
+  border-bottom:2.5px solid #1e3a6e;padding-bottom:8px;margin-bottom:10px;}
+.ps-title{font-size:18px;font-weight:900;color:#1e3a6e;letter-spacing:1px;}
+.ps-subtitle{font-size:9px;color:#6b7280;font-weight:700;letter-spacing:2px;}
+.ps-meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;}
+.ps-meta-item{display:flex;flex-direction:column;gap:2px;}
+.ps-meta-label{font-size:8px;font-weight:700;color:#6b7280;letter-spacing:1px;}
+.ps-meta-val{font-size:12px;font-weight:700;color:#1e3a6e;}
+.ps-goal{background:#e8edf5;border-radius:6px;padding:8px 12px;margin-bottom:12px;
+  font-size:11px;color:#1e3a6e;font-weight:700;line-height:1.6;}
+.ps-goal-label{font-size:8px;font-weight:700;color:#6b7280;letter-spacing:1px;margin-bottom:3px;}
+/* main table */
+.ps-table{width:100%;border-collapse:collapse;font-size:9px;margin-bottom:10px;}
+.ps-table th,.ps-table td{border:1px solid #d1d5db;padding:4px 5px;text-align:center;vertical-align:middle;}
+.ps-table thead th{background:#1e3a6e;color:#fff;font-weight:700;font-size:8px;}
+.ps-table thead th.day-col{font-size:8px;}
+.ps-table td.name-col{text-align:left;font-weight:700;color:#1e3a6e;white-space:nowrap;background:#e8edf5;}
+.ps-table td.name-col.genre{font-size:8px;color:#374151;font-weight:500;padding-left:12px;background:#f4f6f9;}
+.ps-table td.week-total{font-weight:700;color:#1e3a6e;background:#e0f7f8;}
+.ps-table td.sum-row{font-weight:900;background:#e8edf5;}
+.ps-table tr.subj-row td{background:#fff;}
+.ps-table tr.genre-row td{background:#f9fafb;}
+.ps-table tr.total-row td{background:#e0f7f8;font-weight:700;font-size:9px;color:#1e3a6e;}
+.ps-h-zero{color:#d1d5db;}
+.ps-memo{border:1px solid #d1d5db;border-radius:6px;padding:8px 10px;font-size:10px;color:#374151;line-height:1.7;}
+.ps-memo-label{font-size:8px;font-weight:700;color:#6b7280;margin-bottom:4px;}
+.ps-footer{margin-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af;}
+
+/* ===PRINT MEDIA=== */
+@media print{
+  html,body{margin:0;padding:0;background:#fff;}
+  .hdr,.main-nav,.save-bar,.sec,.preview-actions,#json-section{display:none!important;}
+  #preview-modal{display:block!important;position:static!important;background:none!important;padding:0!important;}
+  .preview-wrap{max-width:100%!important;}
+  .preview-actions{display:none!important;}
+  #print-sheet{padding:8mm 10mm!important;font-size:9px!important;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+
+/* ===MISC=== */
+.tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;
+  background:var(--teal-l);color:var(--teal);}
+.divider{height:1px;background:var(--bd);margin:14px 0;}
+.empty-state{text-align:center;padding:20px;color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-icon">📅</div>
+  <div class="hdr-title">すごい塾 <span>週間学習計画</span></div>
+  <div class="hdr-actions">
+    <button class="hdr-btn" onclick="clearAll()">🗑 リセット</button>
+    <button class="hdr-btn primary" onclick="openPreview()">📄 プレビュー・印刷</button>
+  </div>
+</div>
+
+<main>
+  <div class="save-bar">
+    <div class="save-dot" id="save-dot"></div>
+    <span id="save-status">自動保存済み</span>
+    <span style="margin-left:auto;font-size:10px;">前回の入力内容が自動で読み込まれます</span>
+  </div>
+
+  <!-- 1.基本情報 -->
+  <div class="sec" id="sec1">
+    <div class="sec-hdr" onclick="toggleSec('sec1')">
+      <div class="sec-num">1</div>
+      <h2>基本情報</h2>
+      <span class="sec-toggle">▼</span>
+    </div>
+    <div class="sec-body">
+      <div class="row">
+        <div class="field">
+          <label>氏名</label>
+          <input type="text" id="f-name" placeholder="山田 太郎" oninput="save()">
+        </div>
+        <div class="field">
+          <label>週の開始日（月曜日）</label>
+          <input type="date" id="f-weekstart" oninput="onWeekStartChange()">
+        </div>
+      </div>
+      <div class="row single">
+        <div class="field">
+          <label>目標（パターン選択 or 自由記述）</label>
+          <div class="goal-patterns" id="goal-patterns">
+            <label class="goal-chip"><input type="radio" name="goal-pat" value="国公立合格">🎯 国公立大学合格</label>
+            <label class="goal-chip"><input type="radio" name="goal-pat" value="難関私立合格">🏆 難関私立大学合格</label>
+            <label class="goal-chip"><input type="radio" name="goal-pat" value="中堅私立合格">📚 中堅私立大学合格</label>
+            <label class="goal-chip"><input type="radio" name="goal-pat" value="共通テスト対策">📝 共通テスト対策</label>
+            <label class="goal-chip"><input type="radio" name="goal-pat" value="基礎固め">🔧 基礎固め・苦手克服</label>
+            <label class="goal-chip"><input type="radio" name="goal-pat" value="free">✏️ 自由記述</label>
+          </div>
+          <input type="text" id="f-goal-text" placeholder="例：○○大学 経済学部 合格" oninput="save()" style="margin-top:8px;">
+          <p class="hint">パターンを選ぶか自由記述してください（両方入力可）</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.曜日別勉強時間 -->
+  <div class="sec" id="sec2">
+    <div class="sec-hdr" onclick="toggleSec('sec2')">
+      <div class="sec-num">2</div>
+      <h2>曜日別 勉強時間（時間/日）</h2>
+      <span class="sec-toggle">▼</span>
+    </div>
+    <div class="sec-body">
+      <div class="day-grid" id="day-grid">
+        <!-- JS生成 -->
+      </div>
+      <div class="day-total-row">
+        週合計：<strong id="week-total-disp">0</strong>時間
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.科目・ジャンル設定 -->
+  <div class="sec" id="sec3">
+    <div class="sec-hdr" onclick="toggleSec('sec3')">
+      <div class="sec-num">3</div>
+      <h2>科目・ジャンル設定</h2>
+      <span class="sec-toggle">▼</span>
+    </div>
+    <div class="sec-body">
+      <label style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;display:block;">受験科目を選択（複数可）</label>
+      <div class="subj-fixed-list" id="subj-fixed-list"><!-- JS生成 --></div>
+      <button class="add-custom-subj" onclick="addCustomSubject()">＋ 科目を自由追加</button>
+      <div class="divider"></div>
+      <label style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;display:block;">各科目の週間時間・ジャンル設定</label>
+      <p class="hint" style="margin-bottom:10px;">週合計時間と各ジャンルの時間を設定してください。ジャンルの合計が科目時間と一致するようにしてください。</p>
+      <div id="subj-config-list" class="subj-config-list">
+        <div class="empty-state">↑ 上で科目を選択してください</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4.優先順位 -->
+  <div class="sec" id="sec4">
+    <div class="sec-hdr" onclick="toggleSec('sec4')">
+      <div class="sec-num">4</div>
+      <h2>優先順位・日別配分</h2>
+      <span class="sec-toggle">▼</span>
+    </div>
+    <div class="sec-body">
+      <div class="priority-opts">
+        <label class="radio-card">
+          <input type="radio" name="priority" value="proportional" checked onchange="onPriorityChange()">
+          <div class="radio-card-text">
+            <div class="radio-card-title">📊 均等比例配分（おすすめ）</div>
+            <div class="radio-card-desc">勉強時間が多い日はすべての科目を多め、少ない日は少なめに自動計算します</div>
+          </div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="priority" value="manual" onchange="onPriorityChange()">
+          <div class="radio-card-text">
+            <div class="radio-card-title">✏️ 手動で日別配分を指定</div>
+            <div class="radio-card-desc">「土日は数学を多め、平日は英語中心」など細かく指定できます</div>
+          </div>
+        </label>
+      </div>
+      <div id="manual-grid-wrap" style="display:none;">
+        <p class="hint" style="margin-bottom:8px;">各セルに曜日ごとの時間を入力。行合計が週間時間、列合計が曜日の勉強時間に合うよう調整してください。</p>
+        <div id="manual-grid-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5.メモ・備考 -->
+  <div class="sec" id="sec5">
+    <div class="sec-hdr" onclick="toggleSec('sec5')">
+      <div class="sec-num">5</div>
+      <h2>メモ・特記事項</h2>
+      <span class="sec-toggle">▼</span>
+    </div>
+    <div class="sec-body">
+      <div class="field">
+        <label>印刷物に記載するメモ（模試・行事・注意点など）</label>
+        <textarea id="f-memo" placeholder="例：3/5（水）校内模試あり、3/7（日）自由時間" oninput="save()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6.データ管理 -->
+  <div class="sec" id="json-section">
+    <div class="sec-hdr" onclick="toggleSec('json-section')">
+      <div class="sec-num">6</div>
+      <h2>データ管理（翌週への引き継ぎ）</h2>
+      <span class="sec-toggle" style="transform:rotate(-90deg)">▼</span>
+    </div>
+    <div class="sec-body" style="display:none;">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+        「設定をコピー」でこの週の設定をコピーし、翌週は「貼り付けて読み込む」してから日付だけ変えてください。<br>
+        ブラウザを閉じても自動で保存されます。
+      </p>
+      <div class="json-panel">
+        <h3>設定データ（JSON）</h3>
+        <textarea id="json-textarea" placeholder="ここに貼り付けて「読み込む」を押すと設定が復元されます"></textarea>
+        <div class="json-actions">
+          <button class="action-btn filled" onclick="copyJSON()">📋 現在の設定をコピー</button>
+          <button class="action-btn outline" onclick="importJSON()">📥 貼り付けて読み込む</button>
+          <button class="action-btn red" onclick="clearAll()">🗑 全クリア</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- 印刷プレビューモーダル -->
+<div id="preview-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.6);overflow-y:auto;padding:20px;">
+  <div style="max-width:1000px;margin:0 auto;">
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;">
+      <button class="action-btn filled" onclick="printFrame()">🖨️ 印刷（Ctrl+P）</button>
+      <button class="action-btn outline" style="background:#fff;" onclick="closePreview()">✕ 閉じる</button>
+    </div>
+    <iframe id="preview-frame" style="width:100%;height:80vh;border:none;border-radius:10px;background:#fff;"></iframe>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;">
+      <button class="action-btn filled" onclick="printFrame()">🖨️ 印刷（Ctrl+P）</button>
+      <button class="action-btn outline" style="background:#fff;" onclick="closePreview()">✕ 閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 定数
+// ============================================================
+const DAYS = ['月','火','水','木','金','土','日'];
+const DAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
+
+const FIXED_SUBJECTS = [
+  '英語','数学','物理','化学','生物',
+  '現代文','古文','漢文',
+  '世界史','日本史','歴史総合',
+  '地理','公共・政治経済','地学基礎','情報Ⅰ','推薦・小論文'
+];
+
+const PRESET_GENRES = {
+  '英語':      ['英単語・熟語','英文法','英文解釈','長文読解','リスニング','英作文'],
+  '数学':      ['計算練習','インプット','問題演習','分野別'],
+  '物理':      ['基礎ドリル','講義系','問題演習'],
+  '化学':      ['基礎ドリル','講義系','問題演習','計算'],
+  '生物':      ['講義系','問題演習','論述対策'],
+  '現代文':    ['語句・漢字','読解方法','問題演習'],
+  '古文':      ['単語','文法','読解問題'],
+  '漢文':      ['句法','読解問題'],
+  '世界史':    ['講義・流れ','用語暗記','問題演習'],
+  '日本史':    ['講義・流れ','用語暗記','問題演習'],
+  '歴史総合':  ['講義','問題演習'],
+  '地理':      ['講義','用語・統計','問題演習'],
+  '公共・政治経済':['講義','問題演習'],
+  '地学基礎':  ['講義','問題演習'],
+  '情報Ⅰ':    ['講義','プログラミング','問題演習'],
+  '推薦・小論文':['志望理由書','小論文','面接対策'],
+};
+
+// ============================================================
+// 状態
+// ============================================================
+let state = {
+  name: '',
+  weekStart: '',
+  goalPattern: '',
+  goalText: '',
+  memo: '',
+  dayHours: {mon:3,tue:3,wed:3,thu:3,fri:3,sat:5,sun:6},
+  selectedSubjects: [],  // 科目名の配列
+  customSubjects: [],    // {name}
+  subjectData: {},       // {科目名: {weeklyHours, genres:[{name,hours}]}}
+  priority: 'proportional',
+  manualGrid: {},        // {科目名_dayKey: hours}
+};
+
+// ============================================================
+// 初期化
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  renderDayGrid();
+  renderFixedSubjects();
+  loadFromStorage();
+  document.querySelectorAll('input[name="goal-pat"]').forEach(r => {
+    r.addEventListener('change', () => { state.goalPattern = r.value; save(); });
+  });
+});
+
+// ============================================================
+// セクション折りたたみ
+// ============================================================
+function toggleSec(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('collapsed');
+}
+
+// ============================================================
+// 曜日グリッド
+// ============================================================
+function renderDayGrid() {
+  const container = document.getElementById('day-grid');
+  container.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const key = DAY_KEYS[i];
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    cell.innerHTML = `<span class="day-label">${d}</span>
+      <input type="number" id="day-${key}" min="0" max="16" step="0.5"
+        value="${state.dayHours[key]}"
+        oninput="onDayHoursChange('${key}', this.value)">`;
+    container.appendChild(cell);
+  });
+  updateWeekTotal();
+}
+
+function onDayHoursChange(key, val) {
+  state.dayHours[key] = parseFloat(val) || 0;
+  updateWeekTotal();
+  if (state.priority === 'proportional') renderProportional();
+  else renderManualGrid();
+  save();
+}
+
+function updateWeekTotal() {
+  const total = Object.values(state.dayHours).reduce((a, b) => a + b, 0);
+  document.getElementById('week-total-disp').textContent = total;
+  return total;
+}
+
+// ============================================================
+// 週開始日変更
+// ============================================================
+function onWeekStartChange() {
+  state.weekStart = document.getElementById('f-weekstart').value;
+  save();
+}
+
+// ============================================================
+// 固定科目チェックボックス
+// ============================================================
+function renderFixedSubjects() {
+  const container = document.getElementById('subj-fixed-list');
+  container.innerHTML = '';
+  FIXED_SUBJECTS.forEach(s => {
+    const checked = state.selectedSubjects.includes(s);
+    const lbl = document.createElement('label');
+    lbl.className = 'subj-check';
+    lbl.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} onchange="onSubjectToggle('${s}', this.checked)"><span>${s}</span>`;
+    container.appendChild(lbl);
+  });
+  // カスタム科目
+  state.customSubjects.forEach(cs => {
+    const checked = state.selectedSubjects.includes(cs.name);
+    const lbl = document.createElement('label');
+    lbl.className = 'subj-check';
+    lbl.style.borderColor = '#f97316';
+    lbl.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} onchange="onSubjectToggle('${cs.name}', this.checked)"><span>${cs.name} ✎</span>`;
+    container.appendChild(lbl);
+  });
+}
+
+function onSubjectToggle(name, checked) {
+  if (checked) {
+    if (!state.selectedSubjects.includes(name)) state.selectedSubjects.push(name);
+    if (!state.subjectData[name]) {
+      const genres = (PRESET_GENRES[name] || ['その他']).map(g => ({name:g, hours:0}));
+      state.subjectData[name] = {weeklyHours: 0, genres};
+    }
+  } else {
+    state.selectedSubjects = state.selectedSubjects.filter(s => s !== name);
+  }
+  renderSubjectConfigs();
+  renderManualGrid();
+  save();
+}
+
+function addCustomSubject() {
+  const name = prompt('科目名を入力してください（例：小論文、英検2級など）');
+  if (!name || !name.trim()) return;
+  const n = name.trim();
+  if (FIXED_SUBJECTS.includes(n) || state.customSubjects.find(c => c.name === n)) {
+    alert('すでに存在する科目名です');
+    return;
+  }
+  state.customSubjects.push({name: n});
+  state.selectedSubjects.push(n);
+  state.subjectData[n] = {weeklyHours: 0, genres: [{name:'その他', hours: 0}]};
+  renderFixedSubjects();
+  renderSubjectConfigs();
+  renderManualGrid();
+  save();
+}
+
+// ============================================================
+// 科目コンフィグ（週間時間・ジャンル）
+// ============================================================
+function calcSubjectWeeklyHours(name) {
+  const data = state.subjectData[name];
+  if (!data) return 0;
+  return data.genres.reduce((a, g) => a + (parseFloat(g.hours) || 0), 0);
+}
+
+function renderSubjectConfigs() {
+  const container = document.getElementById('subj-config-list');
+  if (state.selectedSubjects.length === 0) {
+    container.innerHTML = '<div class="empty-state">↑ 上で科目を選択してください</div>';
+    return;
+  }
+  container.innerHTML = '';
+  state.selectedSubjects.forEach(name => {
+    const data = state.subjectData[name] || {weeklyHours:0, genres:[]};
+    // weeklyHoursはジャンル合計から自動計算
+    const genreSum = calcSubjectWeeklyHours(name);
+    data.weeklyHours = genreSum;
+
+    const block = document.createElement('div');
+    block.className = 'subj-config';
+    block.id = `sc-${cssId(name)}`;
+
+    let genreHTML = data.genres.map((g, gi) => `
+      <div class="genre-row" id="gr-${cssId(name)}-${gi}">
+        <input type="text" value="${escHtml(g.name)}" placeholder="ジャンル名"
+          oninput="onGenreNameChange('${name}', ${gi}, this.value)">
+        <input type="number" min="0" step="0.25" value="${g.hours}"
+          oninput="onGenreHoursChange('${name}', ${gi}, this.value)">
+        <span>h</span>
+        <button class="del-btn" onclick="removeGenre('${name}', ${gi})">×</button>
+      </div>`).join('');
+
+    block.innerHTML = `
+      <div class="subj-config-hdr">
+        <div class="subj-config-name">${escHtml(name)}</div>
+        <div class="subj-config-hours">
+          週計：<strong id="wh-disp-${cssId(name)}">${genreSum}</strong> h（ジャンル合計から自動計算）
+        </div>
+      </div>
+      <div class="genre-list" id="gl-${cssId(name)}">${genreHTML}</div>
+      <button class="add-genre" onclick="addGenre('${name}')">＋ ジャンルを追加</button>`;
+    container.appendChild(block);
+  });
+}
+
+function onGenreNameChange(name, gi, val) {
+  state.subjectData[name].genres[gi].name = val;
+  save();
+}
+
+function onGenreHoursChange(name, gi, val) {
+  state.subjectData[name].genres[gi].hours = parseFloat(val) || 0;
+  // 科目週計を自動更新
+  const genreSum = calcSubjectWeeklyHours(name);
+  state.subjectData[name].weeklyHours = genreSum;
+  const dispEl = document.getElementById(`wh-disp-${cssId(name)}`);
+  if (dispEl) dispEl.textContent = genreSum;
+  if (state.priority === 'manual') renderManualGrid();
+  save();
+}
+
+function addGenre(name) {
+  state.subjectData[name].genres.push({name:'', hours: 0});
+  renderSubjectConfigs();
+  save();
+}
+
+function removeGenre(name, gi) {
+  state.subjectData[name].genres.splice(gi, 1);
+  // 科目週計を再計算
+  state.subjectData[name].weeklyHours = calcSubjectWeeklyHours(name);
+  renderSubjectConfigs();
+  if (state.priority === 'manual') renderManualGrid();
+  save();
+}
+
+// ============================================================
+// 優先順位
+// ============================================================
+function onPriorityChange() {
+  state.priority = document.querySelector('input[name="priority"]:checked').value;
+  const manualWrap = document.getElementById('manual-grid-wrap');
+  manualWrap.style.display = state.priority === 'manual' ? 'block' : 'none';
+  if (state.priority === 'manual') renderManualGrid();
+  save();
+}
+
+// 均等比例配分の計算（プレビュー用）
+function calcProportional() {
+  const weekTotal = Object.values(state.dayHours).reduce((a, b) => a + b, 0);
+  const result = {}; // {科目名: {dayKey: hours}}
+  if (weekTotal === 0) return result;
+  state.selectedSubjects.forEach(name => {
+    const wh = (state.subjectData[name] || {weeklyHours:0}).weeklyHours || 0;
+    result[name] = {};
+    DAY_KEYS.forEach(dk => {
+      const ratio = state.dayHours[dk] / weekTotal;
+      result[name][dk] = Math.round(wh * ratio * 4) / 4; // 0.25h単位
+    });
+  });
+  return result;
+}
+
+function renderProportional() { /* no-op: calculated on preview */ }
+
+// 手動グリッド
+function renderManualGrid() {
+  const container = document.getElementById('manual-grid-container');
+  if (state.selectedSubjects.length === 0) {
+    container.innerHTML = '<div class="empty-state">科目を選択してください</div>';
+    return;
+  }
+  const rows = [];
+  // header
+  let th = `<tr><th>科目</th><th>週計</th>${DAYS.map((d,i) => `<th>${d}<br><small>${state.dayHours[DAY_KEYS[i]]}h</small></th>`).join('')}</tr>`;
+  rows.push(th);
+  state.selectedSubjects.forEach(name => {
+    const wh = (state.subjectData[name]||{weeklyHours:0}).weeklyHours || 0;
+    const daySum = DAY_KEYS.reduce((a, dk) => a + (parseFloat(state.manualGrid[`${name}_${dk}`]) || 0), 0);
+    const diff = wh - daySum;
+    const sumClass = Math.abs(diff) < 0.01 ? '' : diff > 0 ? 'cell-warn' : 'cell-over';
+    let td = `<tr><td class="name-col">${escHtml(name)}</td>`;
+    td += `<td class="total-cell ${sumClass}">${daySum.toFixed(2)}<small>/${wh}h</small></td>`;
+    DAY_KEYS.forEach(dk => {
+      const val = state.manualGrid[`${name}_${dk}`] !== undefined ? state.manualGrid[`${name}_${dk}`] : '';
+      const dayMax = state.dayHours[dk];
+      td += `<td><input type="number" min="0" step="0.25" max="${dayMax}" value="${val}"
+        oninput="onManualCellChange('${name}','${dk}',this.value)"></td>`;
+    });
+    td += '</tr>';
+    rows.push(td);
+  });
+  // 列合計行
+  let sumRow = '<tr class="day-sum"><td class="name-col">列合計</td><td></td>';
+  DAY_KEYS.forEach(dk => {
+    const colSum = state.selectedSubjects.reduce((a, name) =>
+      a + (parseFloat(state.manualGrid[`${name}_${dk}`]) || 0), 0);
+    const avail = state.dayHours[dk];
+    const cls = Math.abs(colSum - avail) < 0.01 ? '' : colSum > avail ? 'cell-over' : 'cell-warn';
+    sumRow += `<td class="${cls}">${colSum.toFixed(2)}<small>/${avail}h</small></td>`;
+  });
+  sumRow += '</tr>';
+  rows.push(sumRow);
+  container.innerHTML = `<table class="manual-grid"><thead>${rows[0]}</thead><tbody>${rows.slice(1).join('')}</tbody></table>`;
+}
+
+function onManualCellChange(name, dk, val) {
+  state.manualGrid[`${name}_${dk}`] = parseFloat(val) || 0;
+  renderManualGrid();
+  save();
+}
+
+// ============================================================
+// ローカルストレージ
+// ============================================================
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  document.getElementById('save-dot').style.background = 'var(--yellow)';
+  document.getElementById('save-status').textContent = '保存中...';
+  saveTimer = setTimeout(() => {
+    state.name = document.getElementById('f-name').value;
+    state.weekStart = document.getElementById('f-weekstart').value;
+    state.goalText = document.getElementById('f-goal-text').value;
+    state.memo = document.getElementById('f-memo').value;
+    const r = document.querySelector('input[name="goal-pat"]:checked');
+    state.goalPattern = r ? r.value : '';
+    try {
+      localStorage.setItem('sgj-weekly-plan', JSON.stringify(state));
+    } catch(e) {}
+    document.getElementById('save-dot').style.background = 'var(--green)';
+    document.getElementById('save-status').textContent = `自動保存済み（${new Date().toLocaleTimeString('ja-JP')}）`;
+  }, 600);
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem('sgj-weekly-plan');
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    Object.assign(state, saved);
+  } catch(e) { return; }
+  // フォームに反映
+  document.getElementById('f-name').value = state.name || '';
+  document.getElementById('f-weekstart').value = state.weekStart || '';
+  document.getElementById('f-goal-text').value = state.goalText || '';
+  document.getElementById('f-memo').value = state.memo || '';
+  if (state.goalPattern) {
+    const r = document.querySelector(`input[name="goal-pat"][value="${state.goalPattern}"]`);
+    if (r) r.checked = true;
+  }
+  if (state.priority === 'manual') {
+    document.querySelector('input[name="priority"][value="manual"]').checked = true;
+    document.getElementById('manual-grid-wrap').style.display = 'block';
+  }
+  // 曜日時間
+  DAY_KEYS.forEach(dk => {
+    const el = document.getElementById(`day-${dk}`);
+    if (el) el.value = state.dayHours[dk] || 0;
+  });
+  updateWeekTotal();
+  renderFixedSubjects();
+  renderSubjectConfigs();
+  if (state.priority === 'manual') renderManualGrid();
+}
+
+// ============================================================
+// JSON import/export
+// ============================================================
+function copyJSON() {
+  state.name = document.getElementById('f-name').value;
+  state.weekStart = document.getElementById('f-weekstart').value;
+  state.goalText = document.getElementById('f-goal-text').value;
+  state.memo = document.getElementById('f-memo').value;
+  const json = JSON.stringify(state, null, 2);
+  document.getElementById('json-textarea').value = json;
+  navigator.clipboard.writeText(json).then(() => alert('コピーしました！翌週は「貼り付けて読み込む」してから日付を変えてください。')).catch(() => {
+    document.getElementById('json-textarea').select();
+    alert('テキストエリアの内容をCtrl+Cでコピーしてください');
+  });
+}
+
+function importJSON() {
+  const txt = document.getElementById('json-textarea').value.trim();
+  if (!txt) { alert('JSONを貼り付けてください'); return; }
+  try {
+    const parsed = JSON.parse(txt);
+    Object.assign(state, parsed);
+    loadFromStorage.call({_override: state});
+    // re-apply
+    document.getElementById('f-name').value = state.name || '';
+    document.getElementById('f-weekstart').value = state.weekStart || '';
+    document.getElementById('f-goal-text').value = state.goalText || '';
+    document.getElementById('f-memo').value = state.memo || '';
+    if (state.goalPattern) {
+      const r = document.querySelector(`input[name="goal-pat"][value="${state.goalPattern}"]`);
+      if (r) r.checked = true;
+    }
+    DAY_KEYS.forEach(dk => {
+      const el = document.getElementById(`day-${dk}`);
+      if (el) el.value = state.dayHours[dk] || 0;
+    });
+    updateWeekTotal();
+    renderFixedSubjects();
+    renderSubjectConfigs();
+    if (state.priority === 'manual') {
+      document.querySelector('input[name="priority"][value="manual"]').checked = true;
+      document.getElementById('manual-grid-wrap').style.display = 'block';
+      renderManualGrid();
+    }
+    save();
+    alert('読み込みました！日付と変更点を修正してください。');
+  } catch(e) { alert('JSONの形式が正しくありません'); }
+}
+
+function clearAll() {
+  if (!confirm('すべての入力をリセットしますか？')) return;
+  localStorage.removeItem('sgj-weekly-plan');
+  state = {
+    name:'', weekStart:'', goalPattern:'', goalText:'', memo:'',
+    dayHours:{mon:3,tue:3,wed:3,thu:3,fri:3,sat:5,sun:6},
+    selectedSubjects:[], customSubjects:[], subjectData:{},
+    priority:'proportional', manualGrid:{}
+  };
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-weekstart').value = '';
+  document.getElementById('f-goal-text').value = '';
+  document.getElementById('f-memo').value = '';
+  document.querySelectorAll('input[name="goal-pat"]').forEach(r => r.checked = false);
+  document.querySelector('input[name="priority"][value="proportional"]').checked = true;
+  document.getElementById('manual-grid-wrap').style.display = 'none';
+  DAY_KEYS.forEach(dk => {
+    const el = document.getElementById(`day-${dk}`);
+    if (el) el.value = state.dayHours[dk];
+  });
+  updateWeekTotal();
+  renderFixedSubjects();
+  renderSubjectConfigs();
+}
+
+// ============================================================
+// プレビュー・印刷
+// ============================================================
+function openPreview() {
+  state.name = document.getElementById('f-name').value;
+  state.weekStart = document.getElementById('f-weekstart').value;
+  state.goalText = document.getElementById('f-goal-text').value;
+  state.memo = document.getElementById('f-memo').value;
+  const r = document.querySelector('input[name="goal-pat"]:checked');
+  state.goalPattern = r ? r.value : '';
+
+  state.selectedSubjects.forEach(name => {
+    if (state.subjectData[name]) {
+      state.subjectData[name].weeklyHours = calcSubjectWeeklyHours(name);
+    }
+  });
+
+  const distrib = state.priority === 'proportional' ? calcProportional() : buildManualDistrib();
+  const html = buildFullPrintPage(distrib);
+
+  const modal = document.getElementById('preview-modal');
+  const frame = document.getElementById('preview-frame');
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  // iframeにHTMLを書き込む
+  frame.srcdoc = html;
+}
+
+function closePreview() {
+  document.getElementById('preview-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function printFrame() {
+  const frame = document.getElementById('preview-frame');
+  frame.contentWindow.focus();
+  frame.contentWindow.print();
+}
+
+function buildManualDistrib() {
+  const result = {};
+  state.selectedSubjects.forEach(name => {
+    result[name] = {};
+    DAY_KEYS.forEach(dk => {
+      result[name][dk] = parseFloat(state.manualGrid[`${name}_${dk}`]) || 0;
+    });
+  });
+  return result;
+}
+
+function buildFullPrintPage(distrib) {
+  const weekStartDate = state.weekStart ? new Date(state.weekStart) : null;
+  const dateLabels = DAYS.map((d, i) => {
+    if (!weekStartDate) return d;
+    const dt = new Date(weekStartDate);
+    dt.setDate(dt.getDate() + i);
+    return `${d}<br>${dt.getMonth()+1}/${dt.getDate()}`;
+  });
+
+  const goalStr = [state.goalPattern && state.goalPattern !== 'free' ? state.goalPattern : '', state.goalText].filter(Boolean).join('　');
+  const periodStr = weekStartDate ? (() => {
+    const end = new Date(weekStartDate); end.setDate(end.getDate() + 6);
+    return `${weekStartDate.getFullYear()}年${weekStartDate.getMonth()+1}月${weekStartDate.getDate()}日（月）〜 ${end.getMonth()+1}月${end.getDate()}日（日）`;
+  })() : '未設定';
+
+  let tableRows = '';
+
+  if (state.selectedSubjects.length > 0) {
+    state.selectedSubjects.forEach(name => {
+      const data = state.subjectData[name] || {weeklyHours:0, genres:[]};
+      const wh = calcSubjectWeeklyHours(name);
+      const dayDist = distrib[name] || {};
+
+      // 0時間の科目はスキップ
+      if (wh === 0) return;
+
+      // 科目行
+      tableRows += `<tr class="subj-row">
+        <td class="name-col">${escHtml(name)}</td>
+        <td class="week-total">${wh}h</td>
+        ${DAY_KEYS.map(dk => {
+          const v = dayDist[dk] || 0;
+          return `<td${v===0?' class="h-zero"':''}>${v > 0 ? v+'h' : '–'}</td>`;
+        }).join('')}
+      </tr>`;
+
+      // ジャンル行（0時間はスキップ）
+      data.genres.forEach(g => {
+        if ((g.hours || 0) === 0) return;
+        const gh = g.hours || 0;
+        const weekTotal = Object.values(state.dayHours).reduce((a,b)=>a+b,0);
+        tableRows += `<tr class="genre-row">
+          <td class="name-col genre">└ ${escHtml(g.name || '（未設定）')}</td>
+          <td class="genre-total">${gh}h</td>
+          ${DAY_KEYS.map(dk => {
+            const ratio = weekTotal > 0 ? state.dayHours[dk] / weekTotal : 0;
+            const gv = Math.round(gh * ratio * 4) / 4;
+            return `<td class="genre-day${gv===0?' h-zero':''}">${gv > 0 ? gv+'h' : '–'}</td>`;
+          }).join('')}
+        </tr>`;
+      });
+    });
+
+    // 合計行
+    const allSubjTotal = state.selectedSubjects.reduce((a, n) => a + calcSubjectWeeklyHours(n), 0);
+    tableRows += `<tr class="total-row">
+      <td class="name-col">合　計</td>
+      <td class="week-total">${allSubjTotal}h</td>
+      ${DAY_KEYS.map(dk => {
+        const s = state.selectedSubjects.reduce((a, n) => a + (distrib[n]?.[dk] || 0), 0);
+        return `<td><strong>${s > 0 ? s+'h' : '–'}</strong></td>`;
+      }).join('')}
+    </tr>
+    <tr class="avail-row">
+      <td class="name-col">利用可能時間</td>
+      <td>${Object.values(state.dayHours).reduce((a,b)=>a+b,0)}h</td>
+      ${DAY_KEYS.map(dk => `<td>${state.dayHours[dk]}h</td>`).join('')}
+    </tr>`;
+  }
+
+  const memoHTML = state.memo
+    ? `<div class="memo"><div class="memo-label">メモ・特記事項</div>${escHtml(state.memo).replace(/\n/g,'<br>')}</div>`
+    : '';
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>週間学習計画 – ${escHtml(state.name || '')}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:#fff;color:#111;font-size:10px;padding:12mm 10mm;}
+.sheet-header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #1e3a6e;padding-bottom:8px;margin-bottom:10px;}
+.sheet-title{font-size:20px;font-weight:900;color:#1e3a6e;letter-spacing:1px;}
+.sheet-sub{font-size:9px;color:#6b7280;font-weight:700;letter-spacing:2px;margin-top:2px;}
+.sheet-date{font-size:8px;color:#9ca3af;}
+.meta{display:flex;gap:24px;margin-bottom:10px;flex-wrap:wrap;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-size:8px;font-weight:700;color:#6b7280;letter-spacing:1px;}
+.meta-val{font-size:13px;font-weight:700;color:#1e3a6e;}
+.goal-box{background:#e8edf5;border-radius:6px;padding:7px 12px;margin-bottom:10px;font-size:11px;color:#1e3a6e;font-weight:700;line-height:1.6;}
+.goal-label{font-size:8px;font-weight:700;color:#6b7280;letter-spacing:1px;margin-bottom:3px;}
+table{width:100%;border-collapse:collapse;font-size:9.5px;margin-bottom:10px;}
+th,td{border:1px solid #d1d5db;padding:4px 6px;text-align:center;vertical-align:middle;white-space:nowrap;}
+thead th{background:#1e3a6e;color:#fff;font-weight:700;font-size:9px;}
+td.name-col{text-align:left;font-weight:700;color:#1e3a6e;background:#e8edf5;min-width:100px;}
+td.name-col.genre{font-size:8.5px;font-weight:500;color:#374151;background:#f4f6f9;padding-left:14px;}
+td.week-total{font-weight:900;color:#1e3a6e;background:#e0f7f8;}
+td.genre-total{font-size:8.5px;color:#374151;background:#f4f6f9;}
+td.genre-day{font-size:8.5px;background:#f9fafb;}
+td.h-zero{color:#d1d5db;}
+tr.subj-row td{background:#fff;}
+tr.genre-row td{background:#f9fafb;}
+tr.total-row td{background:#e0f7f8;font-weight:700;font-size:10px;color:#1e3a6e;}
+tr.avail-row td{background:#f4f6f9;color:#6b7280;font-size:8.5px;}
+.memo{border:1px solid #d1d5db;border-radius:6px;padding:8px 10px;font-size:10px;color:#374151;line-height:1.8;}
+.memo-label{font-size:8px;font-weight:700;color:#6b7280;margin-bottom:4px;}
+.footer{margin-top:8px;display:flex;justify-content:space-between;font-size:8px;color:#9ca3af;}
+.print-btn{display:block;margin:0 auto 16px;padding:10px 32px;background:#1e3a6e;color:#fff;border:none;
+  border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+@media print{.print-btn{display:none!important;}@page{size:A4 landscape;margin:8mm;}}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨️ 印刷（Ctrl+P）</button>
+<div class="sheet-header">
+  <div>
+    <div class="sheet-title">📅 週間学習計画</div>
+    <div class="sheet-sub">すごい塾 SUGOIJUKU</div>
+  </div>
+  <div class="sheet-date">作成日：${new Date().toLocaleDateString('ja-JP')}</div>
+</div>
+<div class="meta">
+  <div class="meta-item"><div class="meta-label">氏名</div><div class="meta-val">${escHtml(state.name || '未入力')}</div></div>
+  <div class="meta-item"><div class="meta-label">期間</div><div class="meta-val">${escHtml(periodStr)}</div></div>
+</div>
+${goalStr ? `<div class="goal-box"><div class="goal-label">目標</div>${escHtml(goalStr)}</div>` : ''}
+<table>
+  <thead><tr>
+    <th style="text-align:left;min-width:100px">科目 / ジャンル</th>
+    <th style="min-width:44px">週計</th>
+    ${dateLabels.map(d => `<th>${d}</th>`).join('')}
+  </tr></thead>
+  <tbody>${tableRows || '<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:16px;">科目が設定されていません</td></tr>'}</tbody>
+</table>
+${memoHTML}
+<div class="footer">
+  <span>すごい塾 週間学習計画</span>
+  <span>□毎日チェック　□週末振り返り</span>
+</div>
+</body>
+</html>`;
+}
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function cssId(str) {
+  return str.replace(/[^a-zA-Z0-9]/g, '_');
+}
+</script>
+</body>
+</html>
