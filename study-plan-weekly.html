@@ -185,13 +185,10 @@ button.action-btn.red{background:var(--red);color:#fff;}
 
 /* ===PRINT MEDIA=== */
 @media print{
-  html,body{margin:0;padding:0;background:#fff;}
-  .hdr,.main-nav,.save-bar,.sec,.preview-actions,#json-section{display:none!important;}
-  #preview-modal{display:block!important;position:static!important;background:none!important;padding:0!important;}
-  .preview-wrap{max-width:100%!important;}
-  .preview-actions{display:none!important;}
-  #print-sheet{padding:8mm 10mm!important;font-size:9px!important;}
-  @page{size:A4 landscape;margin:8mm;}
+  /* メインページのすべてを非表示 */
+  body > *{display:none!important;}
+  /* iframeの中身が印刷される（srcdocのCSSで制御） */
+  @page{size:A4 landscape;margin:0;}
 }
 
 /* ===MISC=== */
@@ -868,6 +865,17 @@ function printFrame() {
   frame.contentWindow.focus();
   frame.contentWindow.print();
 }
+
+// Ctrl+P を乗っ取ってiframe印刷にリダイレクト
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+    const modal = document.getElementById('preview-modal');
+    if (modal && modal.style.display !== 'none') {
+      e.preventDefault();
+      printFrame();
+    }
+  }
+});
 
 function buildManualDistrib() {
   const result = {};
