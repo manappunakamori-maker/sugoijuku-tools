@@ -505,7 +505,7 @@ function renderRes(){
     var c=document.createElement('div');
     c.className='book-card';
     var imgHtml=bk.img
-      ?'<img class="book-img" src="images/books/'+bk.img+'.jpg" alt="'+bk.title+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="book-img-ph" style="display:none">📗</div>'
+      ?'<img class="book-img" src="'+bk.img+'.jpg" alt="'+bk.title+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="book-img-ph" style="display:none">📗</div>'
       :'<div class="book-img-ph">📗</div>';
     c.innerHTML='<div class="book-img-wrap">'+imgHtml+'</div>'+
       '<div class="book-body">'+
