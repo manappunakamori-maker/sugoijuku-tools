@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>すごい塾 スタッフツール</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --teal:#00b0b9;--teal-d:#008a92;--teal-l:#e0f7f8;
+  --navy:#1e3a6e;--navy-l:#e8edf5;
+  --gold:#f5a623;--gold-l:#fef3dc;
+  --dark:#111827;--mid:#374151;--muted:#6b7280;
+  --bg:#f4f6f9;--card:#fff;--bd:#e5e7eb;
+  --green:#10b981;--green-l:#d1fae5;
+  --purple:#7c3aed;--purple-l:#ede9fe;
+}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+
+/* HEADER */
+header{background:var(--navy);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+.hdr-logo{display:flex;align-items:center;gap:12px;}
+.hdr-icon{width:36px;height:36px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.hdr-name{font-size:15px;font-weight:900;color:#fff;letter-spacing:1px;}
+.hdr-name span{color:var(--teal);}
+.hdr-badge{font-size:11px;background:rgba(255,255,255,.1);color:#94a3b8;padding:4px 12px;
+  border-radius:999px;border:1px solid rgba(255,255,255,.15);letter-spacing:1px;}
+
+/* MAIN */
+main{max-width:960px;margin:0 auto;padding:48px 24px 80px;}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:52px;}
+.hero-eye{display:inline-block;font-size:11px;letter-spacing:4px;color:var(--teal);font-weight:700;
+  margin-bottom:14px;padding:4px 16px;background:var(--teal-l);border-radius:999px;border:1px solid rgba(0,176,185,.2);}
+.hero h1{font-size:clamp(26px,4.5vw,42px);font-weight:900;color:var(--navy);line-height:1.3;letter-spacing:-1px;margin-bottom:14px;}
+.hero h1 em{color:var(--teal);font-style:normal;}
+.hero p{font-size:14px;color:var(--muted);line-height:1.8;}
+
+/* SECTION LABEL */
+.sec-label{display:flex;align-items:center;gap:12px;margin-bottom:20px;margin-top:40px;}
+.sec-label::before,.sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+.sec-label span{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:3px;white-space:nowrap;}
+
+/* GRID */
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;margin-bottom:8px;}
+
+/* CARD */
+.tool-card{background:var(--card);border-radius:16px;border:1px solid var(--bd);overflow:hidden;
+  transition:transform .2s,box-shadow .2s;text-decoration:none;display:block;position:relative;}
+.tool-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.1);}
+.tool-card::before{content:'';display:block;height:5px;}
+.tool-card.teal::before{background:var(--teal);}
+.tool-card.navy::before{background:var(--navy);}
+.tool-card.gold::before{background:var(--gold);}
+.tool-card.green::before{background:var(--green);}
+.tool-card.purple::before{background:var(--purple);}
+.tool-card-inner{padding:22px 22px 18px;}
+
+.tool-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;}
+.tool-card.teal .tool-icon{background:var(--teal-l);}
+.tool-card.navy .tool-icon{background:var(--navy-l);}
+.tool-card.gold .tool-icon{background:var(--gold-l);}
+.tool-card.green .tool-icon{background:var(--green-l);}
+.tool-card.purple .tool-icon{background:var(--purple-l);}
+
+.tool-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.tool-card.teal .tool-tag{color:var(--teal);}
+.tool-card.navy .tool-tag{color:var(--navy);}
+.tool-card.gold .tool-tag{color:#b07a10;}
+.tool-card.green .tool-tag{color:#065f46;}
+.tool-card.purple .tool-tag{color:var(--purple);}
+
+.tool-name{font-size:17px;font-weight:900;color:var(--dark);line-height:1.4;margin-bottom:7px;}
+.tool-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px;}
+
+.new-badge{display:inline-block;font-size:9px;font-weight:900;background:var(--gold);color:#fff;
+  padding:2px 7px;border-radius:4px;margin-left:6px;vertical-align:middle;letter-spacing:.5px;}
+
+.tool-cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;transition:gap .15s;}
+.tool-card.teal .tool-cta{color:var(--teal);}
+.tool-card.navy .tool-cta{color:var(--navy);}
+.tool-card.gold .tool-cta{color:#b07a10;}
+.tool-card.green .tool-cta{color:#065f46;}
+.tool-card.purple .tool-cta{color:var(--purple);}
+.tool-card:hover .tool-cta{gap:10px;}
+
+.staff-only-tag{position:absolute;top:16px;right:16px;font-size:9px;font-weight:700;
+  background:var(--navy);color:#fff;padding:2px 8px;border-radius:4px;letter-spacing:.5px;}
+
+/* NOTES */
+.notes{background:var(--navy);border-radius:16px;padding:28px 32px;color:#fff;margin-top:40px;}
+.notes-title{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--teal);text-transform:uppercase;margin-bottom:16px;}
+.notes-list{list-style:none;display:grid;gap:10px;}
+.notes-list li{font-size:13px;color:#cbd5e1;line-height:1.7;padding-left:20px;position:relative;}
+.notes-list li::before{content:'›';position:absolute;left:0;color:var(--gold);font-weight:900;}
+.notes-list li strong{color:#fff;}
+
+footer{text-align:center;padding:24px;font-size:11px;color:var(--muted);border-top:1px solid var(--bd);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-logo">
+    <div class="hdr-icon">📚</div>
+    <div class="hdr-name">すごい塾 <span>Staff Tools</span></div>
+  </div>
+  <div class="hdr-badge">STAFF ONLY</div>
+</header>
+
+<main>
+
+  <div class="hero">
+    <div class="hero-eye">Staff Dashboard</div>
+    <h1>合格設計の<em>武器</em>が、<br>ここに揃っている。</h1>
+    <p>生徒との面談・進路指導・社内研修に使う<br>すごい塾のスタッフ専用ツール集です</p>
+  </div>
+
+  <!-- 面談・逆算 -->
+  <div class="sec-label"><span>面談・逆算ツール</span></div>
+  <div class="tools-grid">
+
+    <a class="tool-card teal" href="https://manappunakamori-maker.github.io/sugoijuku-tools/study-roadmap.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">🎯</div>
+        <span class="tool-tag">私立大学対応</span>
+        <div class="tool-name">合格までの<br>逆算設計図</div>
+        <div class="tool-desc">志望校・時期・科目レベルを入力すると、1日の必要勉強時間をリアルタイムで算出。面談の核心ツール。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+    <a class="tool-card navy" href="https://manappunakamori-maker.github.io/sugoijuku-tools/study-roadmap-kokuritsu.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">🏛️</div>
+        <span class="tool-tag">国公立大学対応</span>
+        <div class="tool-name">国公立版<br>逆算設計図</div>
+        <div class="tool-desc">共通テスト専用科目にも対応。地方国公立から最難関まで、受験形式に合わせて細かく設計できます。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+    <a class="tool-card gold" href="https://manappunakamori-maker.github.io/sugoijuku-tools/study-diagnostic-ad.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">⏱️</div>
+        <span class="tool-tag">診断ツール</span>
+        <div class="tool-name">合格まで<br>あと何時間？</div>
+        <div class="tool-desc">現在の勉強時間と目標大学を入力すると、合格に必要な総勉強時間と残り時間を診断します。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+    <a class="tool-card teal" href="https://manappunakamori-maker.github.io/sugoijuku-tools/study-reference-table.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">📊</div>
+        <span class="tool-tag">面談資料</span>
+        <div class="tool-name">科目別<br>標準時間基準表</div>
+        <div class="tool-desc">科目・レベル別の標準学習時間一覧表。楽観・標準・厳しめの3モードで確認できます。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- 生徒向け -->
+  <div class="sec-label"><span>生徒向けコンテンツ</span></div>
+  <div class="tools-grid">
+
+    <a class="tool-card navy" href="https://manappunakamori-maker.github.io/sugoijuku-tools/book-sommelier.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">📚</div>
+        <span class="tool-tag">参考書選び</span>
+        <div class="tool-name">参考書ソムリエ</div>
+        <div class="tool-desc">科目・カテゴリを選ぶだけで基礎100ルート対応のおすすめ参考書を提案。生徒との参考書相談に。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+    <a class="tool-card gold" href="https://manappunakamori-maker.github.io/sugoijuku-tools/daigaku-quiz.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">🧠</div>
+        <span class="tool-tag">モチベーション</span>
+        <div class="tool-name">大学受験<br>知識クイズ</div>
+        <div class="tool-desc">受験や大学に関するクイズで生徒の興味関心を引き出す。面談の導入や待ち時間にも。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+    <a class="tool-card green" href="https://manappunakamori-maker.github.io/sugoijuku-tools/nannin-nuki.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">🚀</div>
+        <span class="tool-tag">モチベーション</span>
+        <div class="tool-name">何人抜き<br>チャレンジ</div>
+        <div class="tool-desc">今の勉強量を継続すると受験生の中で何人追い抜けるかを可視化。やる気アップに効果的。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- 計画 -->
+  <div class="sec-label"><span>計画・スケジュール</span></div>
+  <div class="tools-grid">
+
+    <a class="tool-card teal" href="https://manappunakamori-maker.github.io/sugoijuku-tools/study-plan-weekly.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="tool-icon">📅</div>
+        <span class="tool-tag">週間計画</span>
+        <div class="tool-name">週間学習計画<span class="new-badge">NEW</span></div>
+        <div class="tool-desc">曜日別時間・科目・ジャンルを入力するとA4印刷できる週間計画表を作成。翌週は日付だけ変えてOK。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- スタッフ・研修 -->
+  <div class="sec-label"><span>スタッフ・研修</span></div>
+  <div class="tools-grid">
+
+    <a class="tool-card purple" href="https://manappunakamori-maker.github.io/sugoijuku-tools/training-test.html" target="_blank">
+      <div class="tool-card-inner">
+        <div class="staff-only-tag">STAFF</div>
+        <div class="tool-icon">📋</div>
+        <span class="tool-tag">研修・テスト</span>
+        <div class="tool-name">研修テスト<br>システム<span class="new-badge">NEW</span></div>
+        <div class="tool-desc">PDFをアップしてAIが問題を自動生成。受講者は資料を読んでテストを受け、合否・振り返りまで完結。</div>
+        <div class="tool-cta">ツールを開く →</div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="notes">
+    <div class="notes-title">使い方メモ</div>
+    <ul class="notes-list">
+      <li><strong>逆算設計図</strong>は面談中に生徒と一緒に画面を見ながら使うと効果的です</li>
+      <li><strong>週間学習計画</strong>は前回のデータがブラウザに自動保存。翌週は日付だけ変えてA4印刷できます</li>
+      <li><strong>参考書ソムリエ・クイズ・何人抜き・週間計画</strong>はすごい塾HP（スマホ対応版）にも掲載されています</li>
+      <li><strong>研修テストシステム</strong>は管理者パスワードが必要です。URLの外部共有はご遠慮ください</li>
+      <li>このサイトは<strong>スタッフ専用</strong>です。生徒・保護者へのURL共有はしないでください</li>
+    </ul>
+  </div>
+
+</main>
+
+<footer>© すごい塾 Staff Tools — スタッフ専用ページ</footer>
+
+</body>
+</html>
