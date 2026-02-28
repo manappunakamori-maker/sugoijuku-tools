@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物理みはじ式ドリル</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;color:#e6edf3;min-height:100vh}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+button{font-family:inherit}
+.header{background:linear-gradient(160deg,#1a2332,#0d1117);border-bottom:1px solid #21262d;padding:36px 32px 28px}
+.header-inner{max-width:800px;margin:0 auto}
+.eyebrow{font-size:10px;font-weight:700;letter-spacing:.2em;color:#58a6ff;text-transform:uppercase;margin-bottom:10px}
+.h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.sub{color:#8b949e;font-size:14px;line-height:1.7}
+.stats{display:flex;gap:28px;margin-top:20px}
+.sv{font-size:22px;font-weight:800;color:#58a6ff}
+.sl{font-size:11px;color:#8b949e;margin-top:2px}
+.list{max-width:800px;margin:0 auto;padding:28px 32px}
+.card{margin-bottom:20px;background:#161b22;border:1px solid #21262d;border-radius:12px;overflow:hidden}
+.card-head{padding:14px 20px;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.08em;border:1px solid}
+.fname{font-weight:700;font-size:15px}
+.fcode{margin-left:auto;font-family:monospace;font-size:12px;color:#8b949e;background:#0d1117;padding:3px 10px;border-radius:6px}
+.vgrid{display:grid}
+.vbtn{background:transparent;border:none;border-right:1px solid #21262d;padding:14px 16px;cursor:pointer;text-align:left;color:#e6edf3;transition:background .15s}
+.vbtn:last-child{border-right:none}
+.vbtn:hover{background:#21262d}
+.vf{font-size:10px;font-weight:700;margin-bottom:4px}
+.vl{font-size:13px;color:#c9d1d9}
+.va{margin-top:8px;font-size:11px;color:#58a6ff}
+.topbar{background:#161b22;border-bottom:1px solid #21262d;padding:12px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.back{background:transparent;border:1px solid #30363d;border-radius:6px;color:#8b949e;padding:6px 12px;cursor:pointer;font-size:12px}
+.back:hover{background:#21262d}
+.tname{font-weight:700;font-size:15px}
+.tformula{font-family:monospace;font-size:12px;color:#8b949e}
+.sbox{margin-left:auto;text-align:center}
+.sval{font-size:18px;font-weight:800}
+.tabs{background:#0d1117;border-bottom:1px solid #21262d;display:flex;padding:0 20px;overflow-x:auto}
+.tbtn{background:transparent;border:none;border-bottom:2px solid transparent;padding:11px 14px;cursor:pointer;font-size:13px;color:#8b949e;white-space:nowrap;transition:all .15s}
+.tbtn.active{color:#58a6ff;border-bottom-color:#58a6ff;font-weight:700}
+.dmain{display:flex;align-items:center;justify-content:center;padding:32px 20px;min-height:calc(100vh - 110px)}
+.dinner{max-width:580px;width:100%}
+.qmeta{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.qnum{background:#21262d;border-radius:6px;padding:3px 10px;font-size:12px;color:#8b949e}
+.qlabel{font-size:13px;color:#8b949e}
+.qcard{background:#161b22;border:1px solid #30363d;border-radius:14px;padding:28px;margin-bottom:20px}
+.badge{display:inline-block;border-radius:8px;padding:6px 14px;margin-bottom:18px;font-size:13px;font-weight:700;border:1px solid}
+.bsym{font-family:monospace;font-size:16px}
+.qtext{font-size:17px;line-height:1.9}
+.nhi{font-weight:700;font-family:monospace;color:#f0883e}
+.irow{display:flex;gap:10px}
+.iwrap{flex:1;display:flex;align-items:center;background:#161b22;border:1px solid #30363d;border-radius:12px;padding:0 14px;gap:8px}
+.ipfx{font-family:monospace;font-weight:700;color:#58a6ff;white-space:nowrap}
+.isfx{color:#8b949e;font-size:13px;white-space:nowrap}
+.ninput{flex:1;background:transparent;border:none;outline:none;color:#e6edf3;font-size:18px;font-family:monospace;padding:15px 0;width:0}
+.cbtn{background:#238636;border:1px solid #2ea043;border-radius:12px;color:#fff;padding:0 20px;cursor:pointer;font-size:14px;font-weight:700;white-space:nowrap}
+.cbtn:disabled{background:#21262d;border-color:#30363d;color:#8b949e;cursor:not-allowed}
+.hbtn{background:transparent;border:1px solid #30363d;border-radius:12px;color:#8b949e;padding:0 14px;cursor:pointer;font-size:13px}
+.hbtn:hover{background:#21262d}
+.abox{border-radius:12px;padding:22px;margin-bottom:14px;border:1px solid}
+.astatus{font-weight:800;font-size:16px;margin-bottom:12px}
+.solveblock{background:#0d1117;border-radius:8px;padding:16px;font-family:monospace;font-size:14px;color:#79c0ff;white-space:pre-line;line-height:1.9}
+.uf{margin-top:10px;font-size:12px;color:#8b949e}
+.uf span{font-family:monospace}
+.nrow{display:flex;gap:10px}
+.nbtn{flex:1;background:#238636;border:1px solid #2ea043;border-radius:12px;color:#fff;padding:14px;cursor:pointer;font-size:15px;font-weight:700}
+.nbtn:hover{background:#2ea043}
+.swbtn{background:transparent;border:1px solid #30363d;border-radius:12px;color:#8b949e;padding:14px 16px;cursor:pointer;font-size:13px}
+.swbtn:hover{background:#21262d}
+</style>
+</head>
+<body>
+
+<div id="sel">
+  <div class="header">
+    <div class="header-inner">
+      <div class="eyebrow">Physics Drill</div>
+      <h1 class="h1">物理みはじ式ドリル</h1>
+      <p class="sub">同じ公式を、求める変数を変えながら繰り返す。<br>パターン暗記ではなく「式の構造」を身体で覚える。</p>
+      <div class="stats" id="stats" style="display:none">
+        <div><div class="sv" id="st-rate">-</div><div class="sl">正答率</div></div>
+        <div><div class="sv" id="st-streak">0</div><div class="sl">連続正解</div></div>
+        <div><div class="sv" id="st-total">0</div><div class="sl">総問題数</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="list" id="flist"></div>
+</div>
+
+<div id="drl" style="display:none">
+  <div class="topbar">
+    <button class="back" onclick="goSelect()">← 公式一覧</button>
+    <span class="tag" id="dtag"></span>
+    <span class="tname" id="dname"></span>
+    <span class="tformula" id="dformula"></span>
+    <div class="sbox"><div class="sval" id="dstreak">🔥 0</div><div class="sl">連続正解</div></div>
+  </div>
+  <div class="tabs" id="vtabs"></div>
+  <div class="dmain">
+    <div class="dinner">
+      <div class="qmeta">
+        <span class="qnum" id="qn">問題 1 / 4</span>
+        <span class="qlabel" id="ql"></span>
+      </div>
+      <div class="qcard">
+        <div class="badge" id="badge">🎯 <span class="bsym" id="bsym"></span> を求めよ</div>
+        <p class="qtext" id="qt"></p>
+      </div>
+      <div id="ia">
+        <div class="irow">
+          <div class="iwrap">
+            <span class="ipfx" id="ipfx"></span>
+            <input class="ninput" type="number" id="ni" placeholder="数値を入力...">
+            <span class="isfx" id="isfx"></span>
+          </div>
+          <button class="cbtn" id="cbtn" onclick="check()" disabled>確認</button>
+          <button class="hbtn" onclick="reveal()">答えを見る</button>
+        </div>
+      </div>
+      <div id="aa" style="display:none">
+        <div class="abox" id="abox">
+          <div class="astatus" id="ast"></div>
+          <div class="solveblock" id="sb"></div>
+          <div class="uf" id="uf"></div>
+        </div>
+        <div class="nrow">
+          <button class="nbtn" onclick="next()">次の問題 →</button>
+          <button class="swbtn" onclick="swVar()">変数を変える ↻</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var TC = {
+  "力学":   {bg:"#1e3a5f", bd:"#2563eb", tx:"#60a5fa"},
+  "電磁気": {bg:"#3d2800", bd:"#d97706", tx:"#fbbf24"},
+  "熱力学": {bg:"#002a30", bd:"#0891b2", tx:"#22d3ee"},
+  "波動":   {bg:"#3b0a25", bd:"#be185d", tx:"#f472b6"}
+};
+
+var SETS = [
+  { id:"vat", title:"等加速度運動①", formula:"v = v₀ + at", tag:"力学", variants:[
+    { find:"v",  label:"速度を求める",
+      q:"初速度 {v0} m/s で動く物体が、加速度 {a} m/s² で {t} 秒間加速した。この時の速度は？",
+      p:{v0:[2,5,10,0], a:[2,3,4,1], t:[3,4,5,10]},
+      sol:function(p){ return "v = v\u2080 + at\n= "+p.v0+" + "+p.a+" \u00d7 "+p.t+"\n= "+(p.v0+p.a*p.t)+" m/s"; },
+      res:function(p){ return p.v0+p.a*p.t; }, unit:"m/s" },
+    { find:"a",  label:"加速度を求める",
+      q:"{t} 秒間で速度が {v0} m/s から {v} m/s に変化した。加速度は？",
+      p:{v0:[0,2,4,5], v:[10,14,20,25], t:[2,4,4,5]},
+      sol:function(p){ return "a = (v \u2212 v\u2080) / t\n= ("+p.v+" \u2212 "+p.v0+") / "+p.t+"\n= "+((p.v-p.v0)/p.t)+" m/s\u00b2"; },
+      res:function(p){ return (p.v-p.v0)/p.t; }, unit:"m/s²" },
+    { find:"t",  label:"時間を求める",
+      q:"初速度 {v0} m/s、加速度 {a} m/s² で、速度が {v} m/s になるまでの時間は？",
+      p:{v0:[0,2,5,0], v:[20,12,25,30], a:[4,5,4,6]},
+      sol:function(p){ return "t = (v \u2212 v\u2080) / a\n= ("+p.v+" \u2212 "+p.v0+") / "+p.a+"\n= "+((p.v-p.v0)/p.a)+" 秒"; },
+      res:function(p){ return (p.v-p.v0)/p.a; }, unit:"秒" },
+    { find:"v₀", label:"初速度を求める",
+      q:"加速度 {a} m/s² で {t} 秒後の速度が {v} m/s だった。初速度は？",
+      p:{v:[20,18,30,40], a:[3,2,4,5], t:[4,6,5,6]},
+      sol:function(p){ return "v\u2080 = v \u2212 at\n= "+p.v+" \u2212 "+p.a+" \u00d7 "+p.t+"\n= "+(p.v-p.a*p.t)+" m/s"; },
+      res:function(p){ return p.v-p.a*p.t; }, unit:"m/s" }
+  ]},
+  { id:"xt2", title:"等加速度運動②", formula:"x = v₀t + ½at²", tag:"力学", variants:[
+    { find:"x",  label:"変位を求める",
+      q:"初速度 {v0} m/s、加速度 {a} m/s² で {t} 秒後の変位は？",
+      p:{v0:[0,4,10,0], a:[2,3,2,10], t:[3,2,4,5]},
+      sol:function(p){ var x=p.v0*p.t+0.5*p.a*p.t*p.t; return "x = v\u2080t + \u00bdat\u00b2\n= "+p.v0+"\u00d7"+p.t+" + \u00bd\u00d7"+p.a+"\u00d7"+p.t+"\u00b2\n= "+(p.v0*p.t)+" + "+(0.5*p.a*p.t*p.t)+"\n= "+x+" m"; },
+      res:function(p){ return p.v0*p.t+0.5*p.a*p.t*p.t; }, unit:"m" },
+    { find:"v₀", label:"速度を求める（a=0）",
+      q:"等速（a=0）で {t} 秒間に {x} m 進んだ。速度は？",
+      p:{x:[20,60,150,90], t:[4,6,10,9]},
+      sol:function(p){ return "x = v\u2080t より\nv\u2080 = x / t\n= "+p.x+" / "+p.t+"\n= "+(p.x/p.t)+" m/s"; },
+      res:function(p){ return p.x/p.t; }, unit:"m/s" }
+  ]},
+  { id:"Fma", title:"運動方程式", formula:"F = ma", tag:"力学", variants:[
+    { find:"a", label:"加速度を求める",
+      q:"質量 {m} kg の物体に {F} N の合力を加えた。加速度は？",
+      p:{m:[2,5,10,4], F:[10,20,30,12]},
+      sol:function(p){ return "a = F / m\n= "+p.F+" / "+p.m+"\n= "+(p.F/p.m)+" m/s\u00b2"; },
+      res:function(p){ return p.F/p.m; }, unit:"m/s²" },
+    { find:"F", label:"力を求める",
+      q:"質量 {m} kg の物体を {a} m/s² で加速させるのに必要な合力は？",
+      p:{m:[3,6,10,2], a:[2,4,3,5]},
+      sol:function(p){ return "F = ma\n= "+p.m+" \u00d7 "+p.a+"\n= "+(p.m*p.a)+" N"; },
+      res:function(p){ return p.m*p.a; }, unit:"N" },
+    { find:"m", label:"質量を求める",
+      q:"{F} N の合力で {a} m/s² の加速度が生じた。物体の質量は？",
+      p:{F:[20,30,50,24], a:[4,5,2,6]},
+      sol:function(p){ return "m = F / a\n= "+p.F+" / "+p.a+"\n= "+(p.F/p.a)+" kg"; },
+      res:function(p){ return p.F/p.a; }, unit:"kg" }
+  ]},
+  { id:"WFd", title:"仕事", formula:"W = Fd", tag:"力学", variants:[
+    { find:"W", label:"仕事を求める",
+      q:"{F} N の力を進行方向に加えて {d} m 動かした。仕事は？",
+      p:{F:[10,20,5,30], d:[3,5,8,4]},
+      sol:function(p){ return "W = Fd\n= "+p.F+" \u00d7 "+p.d+"\n= "+(p.F*p.d)+" J"; },
+      res:function(p){ return p.F*p.d; }, unit:"J" },
+    { find:"F", label:"力を求める",
+      q:"{d} m 移動させて {W} J の仕事をした。力は？",
+      p:{W:[60,100,40,80], d:[3,5,4,8]},
+      sol:function(p){ return "F = W / d\n= "+p.W+" / "+p.d+"\n= "+(p.W/p.d)+" N"; },
+      res:function(p){ return p.W/p.d; }, unit:"N" },
+    { find:"d", label:"距離を求める",
+      q:"{F} N の力で {W} J の仕事をした。移動距離は？",
+      p:{F:[10,25,8,20], W:[50,100,40,80]},
+      sol:function(p){ return "d = W / F\n= "+p.W+" / "+p.F+"\n= "+(p.W/p.F)+" m"; },
+      res:function(p){ return p.W/p.F; }, unit:"m" }
+  ]},
+  { id:"pmv", title:"運動量・力積", formula:"p = mv  /  J = Ft = Δp", tag:"力学", variants:[
+    { find:"p", label:"運動量を求める",
+      q:"質量 {m} kg の物体が {v} m/s で動いている。運動量は？",
+      p:{m:[2,5,0.5,10], v:[3,4,20,2]},
+      sol:function(p){ return "p = mv\n= "+p.m+" \u00d7 "+p.v+"\n= "+(p.m*p.v)+" kg\u00b7m/s"; },
+      res:function(p){ return p.m*p.v; }, unit:"kg·m/s" },
+    { find:"Δv", label:"速度変化を求める",
+      q:"質量 {m} kg の物体に {F} N の力を {t} 秒加えた。速度の変化は？",
+      p:{m:[2,5,1,4], F:[10,20,6,8], t:[3,2,5,5]},
+      sol:function(p){ return "力積 J = Ft = "+p.F+"\u00d7"+p.t+" = "+(p.F*p.t)+" N\u00b7s\n\u0394v = J / m = "+(p.F*p.t)+" / "+p.m+" = "+(p.F*p.t/p.m)+" m/s"; },
+      res:function(p){ return p.F*p.t/p.m; }, unit:"m/s" },
+    { find:"F", label:"平均の力を求める",
+      q:"質量 {m} kg の物体の速度が {t} 秒間で {v0} m/s から {v} m/s に変化した。平均の力は？",
+      p:{m:[2,3,5,1], v0:[0,2,0,5], v:[10,8,20,15], t:[2,3,4,2]},
+      sol:function(p){ return "F = m\u0394v / t\n= "+p.m+" \u00d7 ("+p.v+" \u2212 "+p.v0+") / "+p.t+"\n= "+(p.m*(p.v-p.v0)/p.t)+" N"; },
+      res:function(p){ return p.m*(p.v-p.v0)/p.t; }, unit:"N" }
+  ]},
+  { id:"VIR", title:"オームの法則", formula:"V = IR", tag:"電磁気", variants:[
+    { find:"I", label:"電流を求める",
+      q:"{R} Ω の抵抗に {V} V の電圧をかけた。電流は？",
+      p:{R:[5,10,4,8], V:[20,30,12,24]},
+      sol:function(p){ return "I = V / R\n= "+p.V+" / "+p.R+"\n= "+(p.V/p.R)+" A"; },
+      res:function(p){ return p.V/p.R; }, unit:"A" },
+    { find:"V", label:"電圧を求める",
+      q:"{R} Ω の抵抗に {I} A の電流が流れた。電圧は？",
+      p:{R:[5,10,3,8], I:[2,3,4,2]},
+      sol:function(p){ return "V = IR\n= "+p.I+" \u00d7 "+p.R+"\n= "+(p.I*p.R)+" V"; },
+      res:function(p){ return p.I*p.R; }, unit:"V" },
+    { find:"R", label:"抵抗を求める",
+      q:"{V} V の電圧で {I} A の電流が流れた。抵抗は？",
+      p:{V:[12,20,30,40], I:[3,4,5,8]},
+      sol:function(p){ return "R = V / I\n= "+p.V+" / "+p.I+"\n= "+(p.V/p.I)+" \u03a9"; },
+      res:function(p){ return p.V/p.I; }, unit:"Ω" }
+  ]},
+  { id:"QmcT", title:"熱量", formula:"Q = mcΔT", tag:"熱力学", variants:[
+    { find:"Q", label:"熱量を求める",
+      q:"質量 {m} g の水（比熱 4.2 J/g·K）を {dT} K 温めた。必要な熱量は？",
+      p:{m:[100,200,500,50], dT:[10,20,5,40]},
+      sol:function(p){ return "Q = mc\u0394T\n= "+p.m+" \u00d7 4.2 \u00d7 "+p.dT+"\n= "+(p.m*4.2*p.dT)+" J"; },
+      res:function(p){ return p.m*4.2*p.dT; }, unit:"J" },
+    { find:"ΔT", label:"温度変化を求める",
+      q:"質量 {m} g の水（比熱 4.2 J/g·K）に {Q} J の熱を与えた。温度変化は？",
+      p:{m:[100,200,500,50], Q:[420,1680,2100,840]},
+      sol:function(p){ return "\u0394T = Q / (mc)\n= "+p.Q+" / ("+p.m+" \u00d7 4.2)\n= "+(p.Q/(p.m*4.2))+" K"; },
+      res:function(p){ return p.Q/(p.m*4.2); }, unit:"K" },
+    { find:"m", label:"質量を求める",
+      q:"比熱 4.2 J/g·K の水に {Q} J 与えたら {dT} K 上がった。水の質量は？",
+      p:{Q:[840,2100,4200,630], dT:[2,5,10,3]},
+      sol:function(p){ return "m = Q / (c\u0394T)\n= "+p.Q+" / (4.2 \u00d7 "+p.dT+")\n= "+(p.Q/(4.2*p.dT))+" g"; },
+      res:function(p){ return p.Q/(4.2*p.dT); }, unit:"g" }
+  ]},
+  { id:"vfl", title:"波の基本式", formula:"v = fλ", tag:"波動", variants:[
+    { find:"v", label:"波速を求める",
+      q:"振動数 {f} Hz、波長 {lam} m の波がある。波速は？",
+      p:{f:[440,100,50,200], lam:[0.5,3,6,1.5]},
+      sol:function(p){ return "v = f\u03bb\n= "+p.f+" \u00d7 "+p.lam+"\n= "+(p.f*p.lam)+" m/s"; },
+      res:function(p){ return p.f*p.lam; }, unit:"m/s" },
+    { find:"λ", label:"波長を求める",
+      q:"波速 {v} m/s、振動数 {f} Hz の波の波長は？",
+      p:{v:[340,300,1500,340], f:[340,150,500,170]},
+      sol:function(p){ return "\u03bb = v / f\n= "+p.v+" / "+p.f+"\n= "+(p.v/p.f)+" m"; },
+      res:function(p){ return p.v/p.f; }, unit:"m" },
+    { find:"f", label:"振動数を求める",
+      q:"波速 {v} m/s、波長 {lam} m の波の振動数は？",
+      p:{v:[340,300,1500,600], lam:[0.5,3,5,2]},
+      sol:function(p){ return "f = v / \u03bb\n= "+p.v+" / "+p.lam+"\n= "+(p.v/p.lam)+" Hz"; },
+      res:function(p){ return p.v/p.lam; }, unit:"Hz" }
+  ]}
+];
+
+// ── 状態 ──
+var cs=0, cv=0, cq=0, streak=0, tot=0, ok=0;
+
+// ── ユーティリティ ──
+function gp(params, idx){
+  var r={};
+  var keys=Object.keys(params);
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    r[k]=Array.isArray(params[k])?params[k][idx%params[k].length]:params[k];
+  }
+  return r;
+}
+function fillQ(tmpl, params, idx){
+  var q=tmpl;
+  var keys=Object.keys(params);
+  for(var i=0;i<keys.length;i++){
+    var k=keys[i];
+    var val=Array.isArray(params[k])?params[k][idx%params[k].length]:params[k];
+    q=q.split("{"+k+"}").join(String(val));
+  }
+  return q;
+}
+function hiNum(txt){
+  return txt.replace(/(\d+\.?\d*)/g,'<span class="nhi">$1</span>');
+}
+
+// ── 選択画面 ──
+function buildSel(){
+  var fl=document.getElementById("flist");
+  fl.innerHTML="";
+  for(var fi=0;fi<SETS.length;fi++){
+    (function(fi){
+      var s=SETS[fi];
+      var tc=TC[s.tag];
+      var card=document.createElement("div");
+      card.className="card";
+      var head=document.createElement("div");
+      head.className="card-head";
+      head.innerHTML='<span class="tag" style="background:'+tc.bg+';border-color:'+tc.bd+';color:'+tc.tx+'">'+s.tag+'</span>'
+        +'<span class="fname">'+s.title+'</span>'
+        +'<span class="fcode">'+s.formula+'</span>';
+      card.appendChild(head);
+      var grid=document.createElement("div");
+      grid.className="vgrid";
+      grid.style.gridTemplateColumns="repeat("+Math.min(s.variants.length,4)+",1fr)";
+      for(var vi=0;vi<s.variants.length;vi++){
+        (function(vi){
+          var v=s.variants[vi];
+          var btn=document.createElement("button");
+          btn.className="vbtn";
+          if(vi===s.variants.length-1) btn.style.borderRight="none";
+          btn.innerHTML='<div class="vf" style="color:'+tc.tx+'">求める：'+v.find+'</div>'
+            +'<div class="vl">'+v.label+'</div>'
+            +'<div class="va">→ 演習開始</div>';
+          btn.onclick=function(){ startDrill(fi,vi); };
+          grid.appendChild(btn);
+        })(vi);
+      }
+      card.appendChild(grid);
+      fl.appendChild(card);
+    })(fi);
+  }
+}
+
+function goSelect(){
+  document.getElementById("sel").style.display="block";
+  document.getElementById("drl").style.display="none";
+  if(tot>0){
+    document.getElementById("stats").style.display="flex";
+    document.getElementById("st-rate").textContent=Math.round(ok/tot*100)+"%";
+    document.getElementById("st-streak").textContent="🔥 "+streak;
+    document.getElementById("st-total").textContent=tot;
+  }
+}
+
+// ── ドリル ──
+function startDrill(fi,vi){
+  cs=fi; cv=vi; cq=0;
+  render();
+  document.getElementById("sel").style.display="none";
+  document.getElementById("drl").style.display="block";
+  document.getElementById("ni").focus();
+}
+
+function render(){
+  var s=SETS[cs], v=s.variants[cv], tc=TC[s.tag];
+  var p=gp(v.p,cq);
+
+  // トップバー
+  var dtag=document.getElementById("dtag");
+  dtag.textContent=s.tag;
+  dtag.style.background=tc.bg; dtag.style.borderColor=tc.bd; dtag.style.color=tc.tx;
+  document.getElementById("dname").textContent=s.title;
+  document.getElementById("dformula").textContent=s.formula;
+  document.getElementById("dstreak").textContent="🔥 "+streak;
+  document.getElementById("dstreak").style.color=streak>0?"#f59e0b":"#8b949e";
+
+  // タブ
+  var tabs=document.getElementById("vtabs");
+  tabs.innerHTML="";
+  for(var i=0;i<s.variants.length;i++){
+    (function(i){
+      var btn=document.createElement("button");
+      btn.className="tbtn"+(i===cv?" active":"");
+      btn.innerHTML="求める：<span style='font-family:monospace'>"+s.variants[i].find+"</span>";
+      btn.onclick=function(){ cv=i; cq=0; render(); resetA(); };
+      tabs.appendChild(btn);
+    })(i);
+  }
+
+  // 問題
+  document.getElementById("qn").textContent="問題 "+(cq+1)+" / 4";
+  document.getElementById("ql").textContent=v.label;
+  var badge=document.getElementById("badge");
+  badge.style.background=tc.bg; badge.style.borderColor=tc.bd; badge.style.color=tc.tx;
+  document.getElementById("bsym").textContent=v.find;
+  document.getElementById("qt").innerHTML=hiNum(fillQ(v.q,v.p,cq));
+
+  // 入力
+  document.getElementById("ipfx").textContent=v.find+" =";
+  document.getElementById("isfx").textContent=v.unit;
+  resetA();
+}
+
+function resetA(){
+  document.getElementById("ia").style.display="block";
+  document.getElementById("aa").style.display="none";
+  document.getElementById("ni").value="";
+  document.getElementById("cbtn").disabled=true;
+  setTimeout(function(){ document.getElementById("ni").focus(); },50);
+}
+
+document.getElementById("ni").addEventListener("input",function(){
+  document.getElementById("cbtn").disabled=(this.value==="");
+});
+document.getElementById("ni").addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&this.value!=="") check();
+});
+
+function check(){
+  var inp=parseFloat(document.getElementById("ni").value);
+  if(isNaN(inp)) return;
+  var v=SETS[cs].variants[cv];
+  var p=gp(v.p,cq);
+  var ans=v.res(p);
+  var isOk=Math.abs(inp-ans)<Math.abs(ans)*0.01+0.001;
+  tot++;
+  if(isOk){ streak++; ok++; } else { streak=0; }
+  showA(isOk?"ok":"ng", ans, v, p);
+}
+
+function reveal(){
+  var v=SETS[cs].variants[cv];
+  var p=gp(v.p,cq);
+  showA(null, v.res(p), v, p);
+}
+
+function showA(result, ans, v, p){
+  document.getElementById("ia").style.display="none";
+  document.getElementById("aa").style.display="block";
+  var box=document.getElementById("abox");
+  var ast=document.getElementById("ast");
+  if(result==="ok"){
+    box.style.background="#1a2f1a"; box.style.borderColor="#2ea043";
+    ast.style.color="#3fb950"; ast.textContent="✓ 正解！";
+  } else if(result==="ng"){
+    box.style.background="#2d1212"; box.style.borderColor="#f85149";
+    ast.style.color="#f85149"; ast.textContent="✗ 不正解　正解："+ans+" "+v.unit;
+  } else {
+    box.style.background="#161b22"; box.style.borderColor="#30363d";
+    ast.style.color="#8b949e"; ast.textContent="解答・解説";
+  }
+  document.getElementById("sb").textContent=v.sol(p);
+  document.getElementById("uf").innerHTML="使った公式：<span>"+SETS[cs].formula+"</span>";
+  document.getElementById("dstreak").textContent="🔥 "+streak;
+  document.getElementById("dstreak").style.color=streak>0?"#f59e0b":"#8b949e";
+}
+
+function next(){
+  cq=(cq+1)%4;
+  render();
+}
+
+function swVar(){
+  cv=(cv+1)%SETS[cs].variants.length;
+  cq=0;
+  render();
+}
+
+buildSel();
+</script>
+</body>
+</html>
