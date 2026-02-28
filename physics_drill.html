@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>物理みはじ式ドリル</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const FORMULA_SETS = [
+  {
+    id: "kinematics-vat",
+    title: "等加速度運動①",
+    formula: "v = v₀ + at",
+    tag: "力学",
+    variants: [
+      {
+        find: "v",
+        label: "速度を求める",
+        question: "初速度 {v₀} m/s で動く物体が、加速度 {a} m/s² で {t} 秒間加速した。この時の速度は？",
+        params: { v₀: [2,5,10,0], a: [2,3,4,1], t: [3,4,5,10] },
+        solve: (p) => `v = v₀ + at\n= ${p.v₀} + ${p.a} × ${p.t}\n= ${p.v₀ + p.a * p.t} m/s`,
+        result: (p) => p.v₀ + p.a * p.t,
+        unit: "m/s",
+      },
+      {
+        find: "a",
+        label: "加速度を求める",
+        question: "{t} 秒間で速度が {v₀} m/s から {v} m/s に変化した。加速度は？",
+        params: { v₀: [0,2,4,5], v: [10,14,20,25], t: [2,4,4,5] },
+        solve: (p) => `a = (v - v₀) / t\n= (${p.v} - ${p.v₀}) / ${p.t}\n= ${(p.v - p.v₀)/p.t} m/s²`,
+        result: (p) => (p.v - p.v₀) / p.t,
+        unit: "m/s²",
+      },
+      {
+        find: "t",
+        label: "時間を求める",
+        question: "初速度 {v₀} m/s、加速度 {a} m/s² で加速し、速度が {v} m/s になるまでの時間は？",
+        params: { v₀: [0,2,5,0], v: [20,12,25,30], a: [4,5,4,6] },
+        solve: (p) => `t = (v - v₀) / a\n= (${p.v} - ${p.v₀}) / ${p.a}\n= ${(p.v - p.v₀)/p.a} 秒`,
+        result: (p) => (p.v - p.v₀) / p.a,
+        unit: "秒",
+      },
+      {
+        find: "v₀",
+        label: "初速度を求める",
+        question: "加速度 {a} m/s² で {t} 秒後の速度が {v} m/s だった。初速度は？",
+        params: { v: [20,18,30,40], a: [3,2,4,5], t: [4,6,5,6] },
+        solve: (p) => `v₀ = v - at\n= ${p.v} - ${p.a} × ${p.t}\n= ${p.v - p.a * p.t} m/s`,
+        result: (p) => p.v - p.a * p.t,
+        unit: "m/s",
+      },
+    ],
+  },
+  {
+    id: "kinematics-xt",
+    title: "等加速度運動②",
+    formula: "x = v₀t + ½at²",
+    tag: "力学",
+    variants: [
+      {
+        find: "x",
+        label: "変位を求める",
+        question: "初速度 {v₀} m/s、加速度 {a} m/s² で {t} 秒後の変位は？",
+        params: { v₀: [0,4,10,0], a: [2,3,2,10], t: [3,2,4,5] },
+        solve: (p) => `x = v₀t + ½at²\n= ${p.v₀}×${p.t} + ½×${p.a}×${p.t}²\n= ${p.v₀*p.t} + ${0.5*p.a*p.t*p.t}\n= ${p.v₀*p.t + 0.5*p.a*p.t*p.t} m`,
+        result: (p) => p.v₀*p.t + 0.5*p.a*p.t*p.t,
+        unit: "m",
+      },
+      {
+        find: "v₀",
+        label: "速度を求める（a=0）",
+        question: "等速（a=0）で {t} 秒間に {x} m 進んだ。速度は？",
+        params: { x: [20,60,150,90], t: [4,6,10,9] },
+        solve: (p) => `x = v₀t より\nv₀ = x / t\n= ${p.x} / ${p.t}\n= ${p.x/p.t} m/s`,
+        result: (p) => p.x/p.t,
+        unit: "m/s",
+      },
+    ],
+  },
+  {
+    id: "newton",
+    title: "運動方程式",
+    formula: "F = ma",
+    tag: "力学",
+    variants: [
+      {
+        find: "a",
+        label: "加速度を求める",
+        question: "質量 {m} kg の物体に {F} N の合力を加えた。加速度は？",
+        params: { m: [2,5,10,4], F: [10,20,30,12] },
+        solve: (p) => `a = F / m\n= ${p.F} / ${p.m}\n= ${p.F/p.m} m/s²`,
+        result: (p) => p.F/p.m,
+        unit: "m/s²",
+      },
+      {
+        find: "F",
+        label: "力を求める",
+        question: "質量 {m} kg の物体を {a} m/s² で加速させるのに必要な合力は？",
+        params: { m: [3,6,10,2], a: [2,4,3,5] },
+        solve: (p) => `F = ma\n= ${p.m} × ${p.a}\n= ${p.m*p.a} N`,
+        result: (p) => p.m*p.a,
+        unit: "N",
+      },
+      {
+        find: "m",
+        label: "質量を求める",
+        question: "{F} N の合力で {a} m/s² の加速度が生じた。物体の質量は？",
+        params: { F: [20,30,50,24], a: [4,5,2,6] },
+        solve: (p) => `m = F / a\n= ${p.F} / ${p.a}\n= ${p.F/p.a} kg`,
+        result: (p) => p.F/p.a,
+        unit: "kg",
+      },
+    ],
+  },
+  {
+    id: "work",
+    title: "仕事",
+    formula: "W = Fd",
+    tag: "力学",
+    variants: [
+      {
+        find: "W",
+        label: "仕事を求める",
+        question: "{F} N の力を進行方向に加えて {d} m 動かした。仕事は？",
+        params: { F: [10,20,5,30], d: [3,5,8,4] },
+        solve: (p) => `W = Fd\n= ${p.F} × ${p.d}\n= ${p.F*p.d} J`,
+        result: (p) => p.F*p.d,
+        unit: "J",
+      },
+      {
+        find: "F",
+        label: "力を求める",
+        question: "{d} m 移動させて {W} J の仕事をした。力は？",
+        params: { W: [60,100,40,80], d: [3,5,4,8] },
+        solve: (p) => `F = W / d\n= ${p.W} / ${p.d}\n= ${p.W/p.d} N`,
+        result: (p) => p.W/p.d,
+        unit: "N",
+      },
+      {
+        find: "d",
+        label: "距離を求める",
+        question: "{F} N の力で {W} J の仕事をした。移動距離は？",
+        params: { F: [10,25,8,20], W: [50,100,40,80] },
+        solve: (p) => `d = W / F\n= ${p.W} / ${p.F}\n= ${p.W/p.F} m`,
+        result: (p) => p.W/p.F,
+        unit: "m",
+      },
+    ],
+  },
+  {
+    id: "momentum",
+    title: "運動量・力積",
+    formula: "p = mv ／ J = Ft = Δp",
+    tag: "力学",
+    variants: [
+      {
+        find: "p",
+        label: "運動量を求める",
+        question: "質量 {m} kg の物体が {v} m/s で動いている。運動量は？",
+        params: { m: [2,5,0.5,10], v: [3,4,20,2] },
+        solve: (p) => `p = mv\n= ${p.m} × ${p.v}\n= ${p.m*p.v} kg·m/s`,
+        result: (p) => p.m*p.v,
+        unit: "kg·m/s",
+      },
+      {
+        find: "Δv",
+        label: "速度変化を求める",
+        question: "質量 {m} kg の物体に {F} N の力を {t} 秒加えた。速度の変化は？",
+        params: { m: [2,5,1,4], F: [10,20,6,8], t: [3,2,5,5] },
+        solve: (p) => `力積 J = Ft = ${p.F}×${p.t} = ${p.F*p.t} N·s\nΔv = J / m = ${p.F*p.t} / ${p.m} = ${p.F*p.t/p.m} m/s`,
+        result: (p) => p.F*p.t/p.m,
+        unit: "m/s",
+      },
+      {
+        find: "F",
+        label: "平均の力を求める",
+        question: "質量 {m} kg の物体の速度が {t} 秒間で {v₀} m/s から {v} m/s に変化した。平均の力は？",
+        params: { m: [2,3,5,1], v₀: [0,2,0,5], v: [10,8,20,15], t: [2,3,4,2] },
+        solve: (p) => `F = mΔv / t\n= ${p.m} × (${p.v} - ${p.v₀}) / ${p.t}\n= ${p.m*(p.v-p.v₀)/p.t} N`,
+        result: (p) => p.m*(p.v-p.v₀)/p.t,
+        unit: "N",
+      },
+    ],
+  },
+  {
+    id: "ohm",
+    title: "オームの法則",
+    formula: "V = IR",
+    tag: "電磁気",
+    variants: [
+      {
+        find: "I",
+        label: "電流を求める",
+        question: "{R} Ω の抵抗に {V} V の電圧をかけた。電流は？",
+        params: { R: [5,10,4,8], V: [20,30,12,24] },
+        solve: (p) => `I = V / R\n= ${p.V} / ${p.R}\n= ${p.V/p.R} A`,
+        result: (p) => p.V/p.R,
+        unit: "A",
+      },
+      {
+        find: "V",
+        label: "電圧を求める",
+        question: "{R} Ω の抵抗に {I} A の電流が流れた。電圧は？",
+        params: { R: [5,10,3,8], I: [2,3,4,2] },
+        solve: (p) => `V = IR\n= ${p.I} × ${p.R}\n= ${p.I*p.R} V`,
+        result: (p) => p.I*p.R,
+        unit: "V",
+      },
+      {
+        find: "R",
+        label: "抵抗を求める",
+        question: "{V} V の電圧で {I} A の電流が流れた。抵抗は？",
+        params: { V: [12,20,30,40], I: [3,4,5,8] },
+        solve: (p) => `R = V / I\n= ${p.V} / ${p.I}\n= ${p.V/p.I} Ω`,
+        result: (p) => p.V/p.I,
+        unit: "Ω",
+      },
+    ],
+  },
+  {
+    id: "heat",
+    title: "熱量",
+    formula: "Q = mcΔT",
+    tag: "熱力学",
+    variants: [
+      {
+        find: "Q",
+        label: "熱量を求める",
+        question: "質量 {m} g の水（比熱 4.2 J/g·K）を {ΔT} K 温めた。必要な熱量は？",
+        params: { m: [100,200,500,50], ΔT: [10,20,5,40] },
+        solve: (p) => `Q = mcΔT\n= ${p.m} × 4.2 × ${p.ΔT}\n= ${p.m*4.2*p.ΔT} J`,
+        result: (p) => p.m*4.2*p.ΔT,
+        unit: "J",
+      },
+      {
+        find: "ΔT",
+        label: "温度変化を求める",
+        question: "質量 {m} g の水（比熱 4.2 J/g·K）に {Q} J の熱を与えた。温度変化は？",
+        params: { m: [100,200,500,50], Q: [420,1680,2100,840] },
+        solve: (p) => `ΔT = Q / (mc)\n= ${p.Q} / (${p.m} × 4.2)\n= ${p.Q/(p.m*4.2)} K`,
+        result: (p) => p.Q/(p.m*4.2),
+        unit: "K",
+      },
+      {
+        find: "m",
+        label: "質量を求める",
+        question: "比熱 4.2 J/g·K の水に {Q} J 与えたら {ΔT} K 上がった。水の質量は？",
+        params: { Q: [840,2100,4200,630], ΔT: [2,5,10,3] },
+        solve: (p) => `m = Q / (cΔT)\n= ${p.Q} / (4.2 × ${p.ΔT})\n= ${p.Q/(4.2*p.ΔT)} g`,
+        result: (p) => p.Q/(4.2*p.ΔT),
+        unit: "g",
+      },
+    ],
+  },
+  {
+    id: "wave",
+    title: "波の基本式",
+    formula: "v = fλ",
+    tag: "波動",
+    variants: [
+      {
+        find: "v",
+        label: "波速を求める",
+        question: "振動数 {f} Hz、波長 {λ} m の波がある。波速は？",
+        params: { f: [440,100,50,200], λ: [0.5,3,6,1.5] },
+        solve: (p) => `v = fλ\n= ${p.f} × ${p.λ}\n= ${p.f*p.λ} m/s`,
+        result: (p) => p.f*p.λ,
+        unit: "m/s",
+      },
+      {
+        find: "λ",
+        label: "波長を求める",
+        question: "波速 {v} m/s、振動数 {f} Hz の波の波長は？",
+        params: { v: [340,300,1500,340], f: [340,150,500,170] },
+        solve: (p) => `λ = v / f\n= ${p.v} / ${p.f}\n= ${p.v/p.f} m`,
+        result: (p) => p.v/p.f,
+        unit: "m",
+      },
+      {
+        find: "f",
+        label: "振動数を求める",
+        question: "波速 {v} m/s、波長 {λ} m の波の振動数は？",
+        params: { v: [340,300,1500,600], λ: [0.5,3,5,2] },
+        solve: (p) => `f = v / λ\n= ${p.v} / ${p.λ}\n= ${p.v/p.λ} Hz`,
+        result: (p) => p.v/p.λ,
+        unit: "Hz",
+      },
+    ],
+  },
+];
+
+const TAG_COLORS = {
+  "力学":   { bg: "#1e3a5f", border: "#2563eb", text: "#60a5fa" },
+  "電磁気": { bg: "#3d2800", border: "#d97706", text: "#fbbf24" },
+  "熱力学": { bg: "#002a30", border: "#0891b2", text: "#22d3ee" },
+  "波動":   { bg: "#3b0a25", border: "#be185d", text: "#f472b6" },
+};
+
+function getParams(params, idx) {
+  const r = {};
+  Object.keys(params).forEach(k => {
+    r[k] = Array.isArray(params[k]) ? params[k][idx % params[k].length] : params[k];
+  });
+  return r;
+}
+
+function fillQ(template, params, idx) {
+  let q = template;
+  Object.keys(params).forEach(k => {
+    const val = Array.isArray(params[k]) ? params[k][idx % params[k].length] : params[k];
+    q = q.replace(new RegExp(`\\{${k}\\}`, 'g'), val);
+  });
+  return q;
+}
+
+function App() {
+  const [mode, setMode] = React.useState("select");
+  const [fIdx, setFIdx] = React.useState(0);
+  const [vIdx, setVIdx] = React.useState(0);
+  const [qIdx, setQIdx] = React.useState(0);
+  const [showAns, setShowAns] = React.useState(false);
+  const [answered, setAnswered] = React.useState(null);
+  const [input, setInput] = React.useState("");
+  const [streak, setStreak] = React.useState(0);
+  const [correct, setCorrect] = React.useState(0);
+  const [total, setTotal] = React.useState(0);
+
+  const fs = FORMULA_SETS[fIdx];
+  const variant = fs.variants[vIdx];
+  const params = getParams(variant.params, qIdx);
+  const questionText = fillQ(variant.question, variant.params, qIdx);
+  const correctAns = variant.result(params);
+
+  function startDrill(fi, vi) {
+    setFIdx(fi); setVIdx(vi); setQIdx(0);
+    setShowAns(false); setAnswered(null); setInput("");
+    setMode("drill");
+  }
+
+  function check() {
+    const num = parseFloat(input);
+    if (isNaN(num)) return;
+    const ok = Math.abs(num - correctAns) < Math.abs(correctAns) * 0.01 + 0.001;
+    setAnswered(ok ? "ok" : "ng");
+    setShowAns(true);
+    setTotal(t => t+1);
+    if (ok) { setStreak(s => s+1); setCorrect(c => c+1); }
+    else setStreak(0);
+  }
+
+  function next() {
+    setShowAns(false); setAnswered(null); setInput("");
+    setQIdx(i => (i+1) % 4);
+  }
+
+  function switchVariant(delta) {
+    const nv = (vIdx + delta + fs.variants.length) % fs.variants.length;
+    setVIdx(nv); setShowAns(false); setAnswered(null); setInput(""); setQIdx(0);
+  }
+
+  const tagC = TAG_COLORS[fs.tag] || TAG_COLORS["力学"];
+
+  // ── 選択画面 ──
+  if (mode === "select") return (
+    <div style={{minHeight:"100vh",background:"#0d1117",fontFamily:"'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif",color:"#e6edf3"}}>
+      <div style={{background:"linear-gradient(160deg,#1a2332,#0d1117)",borderBottom:"1px solid #21262d",padding:"40px 32px 32px"}}>
+        <div style={{maxWidth:800,margin:"0 auto"}}>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:"0.2em",color:"#58a6ff",textTransform:"uppercase",marginBottom:10}}>Physics Drill</div>
+          <h1 style={{fontSize:30,fontWeight:800,margin:"0 0 8px",letterSpacing:"-0.02em"}}>物理みはじ式ドリル</h1>
+          <p style={{margin:0,color:"#8b949e",fontSize:14,lineHeight:1.7}}>
+            同じ公式を、求める変数を変えながら繰り返す。パターン暗記ではなく「式の構造」を身体で覚える。
+          </p>
+          {total > 0 && (
+            <div style={{display:"flex",gap:28,marginTop:20}}>
+              {[["正答率", Math.round(correct/total*100)+"%"],["連続正解", "🔥 "+streak],["総問題数", total]].map(([l,v])=>(
+                <div key={l}>
+                  <div style={{fontSize:22,fontWeight:800,color:"#58a6ff"}}>{v}</div>
+                  <div style={{fontSize:11,color:"#8b949e",marginTop:2}}>{l}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{maxWidth:800,margin:"0 auto",padding:"32px"}}>
+        {FORMULA_SETS.map((f, fi) => {
+          const tc = TAG_COLORS[f.tag] || TAG_COLORS["力学"];
+          return (
+            <div key={f.id} style={{marginBottom:20,background:"#161b22",border:"1px solid #21262d",borderRadius:12,overflow:"hidden"}}>
+              <div style={{padding:"14px 20px",borderBottom:"1px solid #21262d",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                <span style={{background:tc.bg,border:"1px solid "+tc.border,color:tc.text,fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:4,letterSpacing:"0.08em"}}>{f.tag}</span>
+                <span style={{fontWeight:700,fontSize:15}}>{f.title}</span>
+                <span style={{marginLeft:"auto",fontFamily:"monospace",fontSize:12,color:"#8b949e",background:"#0d1117",padding:"3px 10px",borderRadius:6}}>{f.formula}</span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:`repeat(${Math.min(f.variants.length,4)},1fr)`}}>
+                {f.variants.map((v, vi) => (
+                  <button key={vi} onClick={()=>startDrill(fi,vi)} style={{background:"transparent",border:"none",borderRight:vi<f.variants.length-1?"1px solid #21262d":"none",padding:"14px 16px",cursor:"pointer",textAlign:"left",color:"#e6edf3",transition:"background 0.15s"}}
+                    onMouseEnter={e=>e.currentTarget.style.background="#21262d"}
+                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                    <div style={{fontSize:10,color:tc.text,fontWeight:700,marginBottom:4}}>求める：{v.find}</div>
+                    <div style={{fontSize:13,color:"#c9d1d9"}}>{v.label}</div>
+                    <div style={{marginTop:8,fontSize:11,color:"#58a6ff"}}>→ 演習開始</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // ── ドリル画面 ──
+  const ansColor = answered==="ok" ? "#2ea043" : answered==="ng" ? "#f85149" : "#30363d";
+  const ansBg   = answered==="ok" ? "#1a2f1a"  : answered==="ng" ? "#2d1212"  : "#161b22";
+
+  return (
+    <div style={{minHeight:"100vh",background:"#0d1117",fontFamily:"'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif",color:"#e6edf3",display:"flex",flexDirection:"column"}}>
+
+      {/* トップバー */}
+      <div style={{background:"#161b22",borderBottom:"1px solid #21262d",padding:"12px 20px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+        <button onClick={()=>setMode("select")} style={{background:"transparent",border:"1px solid #30363d",borderRadius:6,color:"#8b949e",padding:"6px 12px",cursor:"pointer",fontSize:12}}>← 公式一覧</button>
+        <span style={{background:tagC.bg,border:"1px solid "+tagC.border,color:tagC.text,fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:4}}>{fs.tag}</span>
+        <span style={{fontWeight:700,fontSize:15}}>{fs.title}</span>
+        <span style={{fontFamily:"monospace",fontSize:12,color:"#8b949e"}}>{fs.formula}</span>
+        <div style={{marginLeft:"auto",textAlign:"center"}}>
+          <div style={{fontSize:18,fontWeight:800,color:streak>0?"#f59e0b":"#8b949e"}}>🔥 {streak}</div>
+          <div style={{fontSize:10,color:"#8b949e"}}>連続正解</div>
+        </div>
+      </div>
+
+      {/* 変数タブ */}
+      <div style={{background:"#0d1117",borderBottom:"1px solid #21262d",display:"flex",padding:"0 20px",overflowX:"auto"}}>
+        {fs.variants.map((v,vi)=>(
+          <button key={vi} onClick={()=>switchVariant(vi-vIdx)} style={{background:"transparent",border:"none",borderBottom:vIdx===vi?"2px solid #58a6ff":"2px solid transparent",padding:"11px 14px",cursor:"pointer",fontSize:13,color:vIdx===vi?"#58a6ff":"#8b949e",fontWeight:vIdx===vi?700:400,whiteSpace:"nowrap",transition:"all 0.15s"}}>
+            求める：<span style={{fontFamily:"monospace"}}>{v.find}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* メイン */}
+      <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",padding:"32px 20px"}}>
+        <div style={{maxWidth:580,width:"100%"}}>
+
+          {/* 問題番号・ラベル */}
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
+            <span style={{background:"#21262d",borderRadius:6,padding:"3px 10px",fontSize:12,color:"#8b949e"}}>問題 {qIdx+1} / 4</span>
+            <span style={{fontSize:13,color:"#8b949e"}}>{variant.label}</span>
+          </div>
+
+          {/* 問題カード */}
+          <div style={{background:"#161b22",border:"1px solid #30363d",borderRadius:14,padding:"28px",marginBottom:20}}>
+            <div style={{display:"inline-block",background:tagC.bg,border:"1px solid "+tagC.border,borderRadius:8,padding:"6px 14px",marginBottom:18,fontSize:13,color:tagC.text,fontWeight:700}}>
+              🎯 <span style={{fontFamily:"monospace",fontSize:16}}>{variant.find}</span> を求めよ
+            </div>
+            <p style={{fontSize:17,lineHeight:1.9,margin:0}}>
+              {questionText.split(/(\d+\.?\d*)/g).map((s,i)=>
+                /^\d+\.?\d*$/.test(s)
+                  ? <span key={i} style={{color:"#f0883e",fontWeight:700,fontFamily:"monospace"}}>{s}</span>
+                  : s
+              )}
+            </p>
+          </div>
+
+          {/* 入力エリア */}
+          {!showAns && (
+            <div style={{display:"flex",gap:10}}>
+              <div style={{flex:1,display:"flex",alignItems:"center",background:"#161b22",border:"1px solid #30363d",borderRadius:12,padding:"0 14px",gap:8}}>
+                <span style={{fontFamily:"monospace",color:"#58a6ff",fontWeight:700,whiteSpace:"nowrap"}}>{variant.find} =</span>
+                <input type="number" value={input} onChange={e=>setInput(e.target.value)}
+                  onKeyDown={e=>{if(e.key==="Enter"&&input!=="")check()}}
+                  placeholder="数値を入力..." autoFocus
+                  style={{flex:1,background:"transparent",border:"none",outline:"none",color:"#e6edf3",fontSize:18,fontFamily:"monospace",padding:"15px 0"}}/>
+                <span style={{color:"#8b949e",fontSize:13,whiteSpace:"nowrap"}}>{variant.unit}</span>
+              </div>
+              <button onClick={check} disabled={input===""}
+                style={{background:input!==""?"#238636":"#21262d",border:"1px solid",borderColor:input!==""?"#2ea043":"#30363d",borderRadius:12,color:input!==""?"#fff":"#8b949e",padding:"0 20px",cursor:input!==""?"pointer":"not-allowed",fontSize:14,fontWeight:700,transition:"all 0.15s"}}>確認</button>
+              <button onClick={()=>setShowAns(true)}
+                style={{background:"transparent",border:"1px solid #30363d",borderRadius:12,color:"#8b949e",padding:"0 14px",cursor:"pointer",fontSize:13}}>答えを見る</button>
+            </div>
+          )}
+
+          {/* 答え */}
+          {showAns && (
+            <div style={{background:ansBg,border:"1px solid "+ansColor,borderRadius:12,padding:"22px",marginBottom:14}}>
+              {answered==="ok" && <div style={{color:"#3fb950",fontWeight:800,fontSize:16,marginBottom:12}}>✓ 正解！</div>}
+              {answered==="ng" && <div style={{color:"#f85149",fontWeight:800,fontSize:16,marginBottom:12}}>✗ 不正解　正解：{correctAns} {variant.unit}</div>}
+              {!answered  && <div style={{color:"#8b949e",fontWeight:700,fontSize:13,marginBottom:12}}>解答・解説</div>}
+              <div style={{background:"#0d1117",borderRadius:8,padding:"16px",fontFamily:"monospace",fontSize:14,color:"#79c0ff",whiteSpace:"pre-line",lineHeight:1.9}}>
+                {variant.solve(params)}
+              </div>
+              <div style={{marginTop:10,fontSize:12,color:"#8b949e"}}>使った公式：<span style={{fontFamily:"monospace"}}>{fs.formula}</span></div>
+            </div>
+          )}
+
+          {/* ナビゲーション */}
+          {showAns && (
+            <div style={{display:"flex",gap:10}}>
+              <button onClick={next} style={{flex:1,background:"#238636",border:"1px solid #2ea043",borderRadius:12,color:"#fff",padding:"14px",cursor:"pointer",fontSize:15,fontWeight:700}}>次の問題 →</button>
+              <button onClick={()=>switchVariant(1)} style={{background:"transparent",border:"1px solid #30363d",borderRadius:12,color:"#8b949e",padding:"14px 16px",cursor:"pointer",fontSize:13}}>変数を変える ↻</button>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
