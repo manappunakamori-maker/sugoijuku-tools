@@ -627,6 +627,12 @@ function updateCard(pg,idx){
   const endD=new Date(endStr);
   if(el('enddisp'))el('enddisp').innerHTML=`<span class="end-date">${endD.getFullYear()}/${endD.getMonth()+1}/${endD.getDate()}</span><span class="end-days">(${endDays}日間)</span>`;
   PACES.forEach(p=>{const btn=document.getElementById(`pb_${p.key}_${key}`);if(btn)btn.className=`pb${s.pace===p.key?' '+p.cls:''}`;});
+  // 週あたり目標欄を連動更新
+  const wpwEl=document.getElementById(`wpw_${key}`);
+  if(wpwEl){
+    const actDays=Math.round(s.baseDays/(PACES.find(x=>x.key===s.pace)||PACES[1]).mult);
+    wpwEl.value=Math.max(1,Math.round(s.total/actDays*7));
+  }
 }
 
 function toggleInputs(key){
@@ -699,6 +705,11 @@ function buildCard(pg,idx){
       <span class="pace-label">ペース</span>
       <div class="pace-btns">${paceBtns}</div>
     </div>
+    <div class="ig" style="grid-column:1/-1;display:flex;align-items:center;gap:6px;margin-top:2px">
+      <span style="font-size:9px;color:#999;font-weight:500;white-space:nowrap">1週あたりの目標</span>
+      <input type="number" id="wpw_${key}" value="${Math.round(s.total/Math.round(s.baseDays/(PACES.find(x=>x.key===s.pace)||PACES[1]).mult)*7)}" min="1" style="width:72px" oninput="onWeeklyInput('${key}',${pg},${idx},this.value)">
+      <span style="font-size:9px;color:#aaa" id="wpwunit_${key}">${s.unit}/週</span>
+    </div>
   </div>
 </div>`;
   document.getElementById('bookGrid').appendChild(card);
@@ -740,8 +751,8 @@ function buildCard(pg,idx){
         return `実績: ${c.parsed.y}${s.unit}　(${diff>=0?'+':''}${diff}${s.unit})`;
       }}}},
       scales:{
-        x:{ticks:{font:{size:8},maxRotation:0,color:'#bbb',autoSkip:true,maxTicksLimit:9},grid:{display:false},border:{display:false}},
-        y:{min:0,max:s.total||1,ticks:{font:{size:8},maxTicksLimit:4,color:'#bbb'},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
+        x:{ticks:{font:{size:10},maxRotation:0,color:'#555',autoSkip:true,maxTicksLimit:9},grid:{display:false},border:{display:false}},
+        y:{min:0,max:s.total||1,ticks:{font:{size:10},maxTicksLimit:4,color:'#555'},grid:{color:'rgba(0,0,0,0.06)'},border:{display:false}}
       }
     }
   });
@@ -762,6 +773,17 @@ function downloadCardPng(key,name){
   a.click();
 }
 
+function onWeeklyInput(key,pg,idx,val){
+  const wpw=parseFloat(val)||1;
+  const s=pages[pg][idx];
+  // 週あたり目標 → baseDays を逆算（pace=normal固定で保存）
+  const newBaseDays=Math.round(s.total/wpw*7);
+  pages[pg][idx].baseDays=newBaseDays;
+  pages[pg][idx].pace='normal';
+  // ペースボタンのハイライトをリセット
+  PACES.forEach(p=>{const btn=document.getElementById(`pb_${p.key}_${key}`);if(btn)btn.className='pb'+(p.key==='normal'?' active-normal':'');});
+  updateCard(pg,idx);
+}
 function setPace(pg,idx,paceKey){pages[pg][idx].pace=paceKey;updateCard(pg,idx);}
 
 function renderPage(){

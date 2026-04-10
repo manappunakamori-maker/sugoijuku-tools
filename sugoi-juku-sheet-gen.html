@@ -145,7 +145,11 @@ table.preview tr.today-row td{background:#f0f8ff}
       </div>
       <div class="fg">
         <label>標準期間（日）</label>
-        <input type="number" id="f_days" value="60" min="7" oninput="updatePaceNote()">
+        <input type="number" id="f_days" value="60" min="7" oninput="onDaysInput()">
+      </div>
+      <div class="fg">
+        <label>1週あたりの目標（手入力可）</label>
+        <input type="number" id="f_wpw" value="" min="1" placeholder="自動計算" oninput="onWpwInput()">
       </div>
     </div>
     <div class="add-row">
@@ -212,6 +216,8 @@ function onBookChange(){
     document.getElementById('f_total').value=m.total;
     document.getElementById('f_unit').value=m.unit||'問';
     document.getElementById('f_days').value=m.days;
+    delete document.getElementById('f_wpw').dataset.manual;
+    document.getElementById('f_wpw').value='';
   }
   updatePaceNote();
 }
@@ -221,6 +227,30 @@ function updatePaceNote(){
   const actual=Math.round(days/(PACES[pace]||1));
   const st=new Date(document.getElementById('f_start').value);
   if(!isNaN(st)) document.getElementById('paceNote').textContent=`終了日：${fmtDate(addD(st,actual))}（${actual}日間）`;
+  // 週あたり目標を自動計算して表示（手入力中は上書きしない）
+  const wpwEl=document.getElementById('f_wpw');
+  if(wpwEl&&!wpwEl.dataset.manual){
+    const total=parseInt(document.getElementById('f_total').value)||1;
+    wpwEl.placeholder=Math.round(total/actual*7)+'（自動）';
+    wpwEl.value='';
+  }
+}
+function onDaysInput(){
+  document.getElementById('f_wpw').dataset.manual='';
+  updatePaceNote();
+}
+function onWpwInput(){
+  const wpw=parseFloat(document.getElementById('f_wpw').value);
+  const total=parseInt(document.getElementById('f_total').value)||1;
+  if(wpw>0){
+    // 週あたりから日数を逆算してf_daysに反映
+    const newDays=Math.round(total/wpw*7);
+    document.getElementById('f_wpw').dataset.manual='1';
+    document.getElementById('f_days').value=Math.max(7,newDays);
+  } else {
+    delete document.getElementById('f_wpw').dataset.manual;
+  }
+  updatePaceNote();
 }
 
 function computeRows(book){
