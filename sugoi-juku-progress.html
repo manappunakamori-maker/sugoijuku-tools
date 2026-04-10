@@ -7,13 +7,13 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:#f5f4f0;color:#1a1a1a;padding:12px 14px}
-.tabs{display:flex;border-bottom:1px solid #ddd;margin-bottom:12px}
-.tab{font-size:13px;padding:7px 14px;cursor:pointer;border-bottom:2px solid transparent;color:#888;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tabs{display:flex;border-bottom:1px solid #ddd;margin-bottom:12px;gap:0;overflow-x:auto}
+.tab{font-size:12px;padding:7px 13px;cursor:pointer;border-bottom:2px solid transparent;color:#888;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;white-space:nowrap;flex-shrink:0}
 .tab.active{color:#1a1a1a;border-bottom:2px solid #1a1a1a;font-weight:600}
 .pane{display:none}.pane.active{display:block}
 
 /* header */
-.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap}
 .phdr h2{font-size:13px;font-weight:600;color:#1a1a1a}
 .hdr-controls{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .page-nav{display:flex;align-items:center;gap:4px}
@@ -22,14 +22,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .page-nav button:disabled{opacity:.35;cursor:default}
 .page-label{font-size:11px;color:#888;min-width:40px;text-align:center}
 
+/* student row */
+.student-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;background:#fff;border:1px solid #e8e6e0;border-radius:9px;padding:8px 12px;flex-wrap:wrap}
+.student-row label{font-size:11px;color:#888;font-weight:500;white-space:nowrap}
+.student-row input{font-size:12px;height:28px;padding:3px 8px;border:1px solid #ddd;border-radius:5px;font-family:inherit;width:160px}
+.student-row select{font-size:12px;height:28px;padding:3px 6px;border:1px solid #ddd;border-radius:5px;font-family:inherit;max-width:160px}
+.btn-save{font-size:11px;padding:4px 12px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-save:hover{background:#333}
+.save-msg{font-size:10px;color:#3B6D11;font-weight:600;opacity:0;transition:opacity .3s}
+.save-msg.show{opacity:1}
+
 /* grid */
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-
-/* card */
 .card{background:#fff;border:1px solid #e8e6e0;border-radius:11px;overflow:hidden}
-
-/* card-top — always visible */
-.card-top{padding:9px 11px 8px;cursor:default}
+.card-top{padding:9px 11px 8px}
 .card-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:4px}
 .card-left{display:flex;align-items:center;gap:6px;min-width:0}
 .card-num{font-size:8px;color:#bbb;font-weight:600;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
@@ -40,22 +46,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .edit-btn{width:22px;height:22px;border-radius:5px;border:1px solid #e0ddd5;background:#faf9f6;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#888;transition:background .15s}
 .edit-btn:hover{background:#f0eeea;color:#1a1a1a}
 .edit-btn.open{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-
-/* gap bar */
 .gap-bar-wrap{margin-bottom:6px}
 .gap-label{font-size:8px;color:#aaa;margin-bottom:2px;display:flex;justify-content:space-between}
 .gap-label .diff-label{font-weight:600}
 .gap-track{height:5px;background:#ede9e0;border-radius:3px;overflow:hidden}
 .gap-fill{height:100%;border-radius:3px;transition:width .3s}
-
-/* chart */
 .chart-wrap{position:relative;height:100px}
 .legend{display:flex;gap:8px;margin-top:3px;padding-bottom:2px}
 .legend span{font-size:8px;color:#aaa;display:flex;align-items:center;gap:2px}
 .lsq{display:inline-block;width:7px;height:7px;border-radius:1px}
 .lline{display:inline-block;width:14px;height:0;border-top:2px solid #378ADD}
-
-/* card-inputs — collapsible */
 .card-inputs{display:none;border-top:1px solid #f0eeea;padding:9px 11px 10px;background:#faf9f6}
 .card-inputs.open{display:block}
 .inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;margin-bottom:6px}
@@ -103,11 +103,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .fg input,.fg select{font-size:12px;height:28px;padding:3px 7px;border:1px solid #ddd;border-radius:5px;font-family:inherit}
 .fg-name{flex:1;min-width:120px}
 .empty-state{text-align:center;padding:24px;color:#bbb;font-size:12px}
-.notice{font-size:11px;color:#666;background:#f0eeea;padding:7px 10px;border-radius:7px;margin-bottom:10px}
+.notice-box{font-size:11px;color:#666;background:#f0eeea;padding:7px 10px;border-radius:7px;margin-bottom:10px}
+
+/* record tab */
+.rec-toolbar{display:flex;gap:7px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.rec-toolbar label{font-size:11px;color:#888}
+.rec-toolbar select{font-size:12px;height:28px;padding:3px 7px;border:1px solid #ddd;border-radius:5px;font-family:inherit}
+.btn-export{font-size:11px;padding:4px 11px;background:#185FA5;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit}
+.btn-export:hover{background:#0e4a80}
+.btn-import-label{font-size:11px;padding:4px 11px;background:#fff;color:#666;border:1px solid #ccc;border-radius:6px;cursor:pointer;display:inline-block}
+.btn-import-label:hover{background:#f0eeea}
+.btn-clear{font-size:11px;padding:4px 11px;background:#fff;color:#993C1D;border:1px solid #F0997B;border-radius:6px;cursor:pointer;font-family:inherit}
+.btn-clear:hover{background:#FAECE7}
+.rec-table-wrap{overflow-x:auto}
+.rec-table{width:100%;border-collapse:collapse;font-size:11px;min-width:600px}
+.rec-table th{font-size:9px;font-weight:600;color:#aaa;text-align:left;padding:5px 8px;border-bottom:1px solid #e0ddd5;background:#f7f6f2;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}
+.rec-table td{padding:5px 8px;border-bottom:1px solid #ede9e0;color:#1a1a1a;vertical-align:middle}
+.rec-table tr:hover td{background:#faf9f6}
+.rec-empty{text-align:center;padding:32px;color:#bbb;font-size:12px}
+.pct-pill{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:10px}
+
+/* 使い方タブ */
+.howto{max-width:640px}
+.howto-section{margin-bottom:20px}
+.howto-section h3{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #e8e6e0}
+.howto-section ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.howto-section li{font-size:12px;color:#444;line-height:1.7;padding-left:16px;position:relative}
+.howto-section li::before{content:"•";position:absolute;left:4px;color:#aaa}
+.warn-item::before{content:"⚠";position:absolute;left:0;color:#D85A30;font-size:10px;top:3px}
+.warn-item{color:#993C1D!important;background:#FAECE7;border-radius:5px;padding:5px 5px 5px 20px!important}
+.step-num{display:inline-block;width:17px;height:17px;background:#1a1a1a;color:#fff;border-radius:50%;font-size:9px;font-weight:700;text-align:center;line-height:17px;margin-right:5px;flex-shrink:0}
 
 @media print{
   body{background:#fff;padding:6px}
-  .tabs,.hdr-controls{display:none}
+  .tabs,.hdr-controls,.student-row{display:none}
   .card-inputs{display:none!important}
   .card{break-inside:avoid}
   .grid{gap:6px}
@@ -118,9 +147,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 
 <div class="tabs">
   <button class="tab active" onclick="switchTab('progress')">進捗グラフ</button>
+  <button class="tab" onclick="switchTab('record')">記録・履歴</button>
   <button class="tab" onclick="switchTab('master')">マスターデータ編集</button>
+  <button class="tab" onclick="switchTab('howto')">使い方</button>
 </div>
 
+<!-- 進捗グラフ -->
 <div class="pane active" id="pane-progress">
   <div class="phdr">
     <h2>参考書 進捗管理</h2>
@@ -134,11 +166,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
       <button class="action" onclick="window.print()">印刷 / PDF</button>
     </div>
   </div>
+  <div class="student-row">
+    <label>生徒名</label>
+    <input type="text" id="studentName" placeholder="例：山田太郎" oninput="onStudentInput()">
+    <select id="studentSelect" onchange="loadStudent(this.value)" style="display:none">
+      <option value="">-- 過去の生徒から選ぶ --</option>
+    </select>
+    <button class="btn-save" onclick="saveRecord()">この状態を記録する</button>
+    <span class="save-msg" id="saveMsg">保存しました</span>
+  </div>
   <div class="grid" id="bookGrid"></div>
 </div>
 
+<!-- 記録・履歴 -->
+<div class="pane" id="pane-record">
+  <div class="rec-toolbar">
+    <label>生徒で絞り込み</label>
+    <select id="filterStudent" onchange="renderRecords()">
+      <option value="">全員</option>
+    </select>
+    <button class="btn-export" onclick="exportCSV()">CSVエクスポート</button>
+    <label class="btn-import-label">CSVインポート（復元）
+      <input type="file" accept=".csv" style="display:none" onchange="importCSV(this)">
+    </label>
+    <button class="btn-clear" onclick="clearAllRecords()">全データ削除</button>
+  </div>
+  <div class="rec-table-wrap">
+    <div id="recContent"><div class="rec-empty">まだ記録がありません。進捗グラフ画面で「この状態を記録する」を押してください。</div></div>
+  </div>
+</div>
+
+<!-- マスターデータ編集 -->
 <div class="pane" id="pane-master">
-  <div class="notice">マスターには「標準ペース」の期間を登録してください。終了日は開始日とペースから自動計算されます。</div>
+  <div class="notice-box">マスターには「標準ペース」の期間を登録してください。終了日は開始日とペースから自動計算されます。</div>
   <div class="master-wrap">
     <div class="master-left">
       <div class="add-subj">
@@ -151,8 +211,62 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
   </div>
 </div>
 
+<!-- 使い方 -->
+<div class="pane" id="pane-howto">
+  <div class="howto">
+
+    <div class="howto-section">
+      <h3>基本的な使い方</h3>
+      <ul>
+        <li><span class="step-num">1</span>「生徒名」欄に名前を入力する</li>
+        <li><span class="step-num">2</span>各カード右上の ✎ ボタンを押して入力欄を開く</li>
+        <li><span class="step-num">3</span>科目 → 参考書名を選ぶと総数・終了日が自動入力される</li>
+        <li><span class="step-num">4</span>今日時点の進捗（ページ数・問題数）を入力する</li>
+        <li><span class="step-num">5</span>グラフで理想ペースとの差を確認して面談に活用する</li>
+        <li><span class="step-num">6</span>「この状態を記録する」を押してデータを保存する</li>
+        <li><span class="step-num">7</span>印刷 / PDF ボタンでA4に出力できる（入力欄は印刷されない）</li>
+      </ul>
+    </div>
+
+    <div class="howto-section">
+      <h3>記録・履歴機能</h3>
+      <ul>
+        <li>「この状態を記録する」を押すたびに、その日の進捗スナップショットが保存される</li>
+        <li>次回同じ生徒名を入力すると、最後に記録した進捗が自動入力される</li>
+        <li>「記録・履歴」タブで全生徒・全記録の一覧を確認できる</li>
+        <li>生徒名で絞り込んで特定の生徒の推移を確認できる</li>
+      </ul>
+    </div>
+
+    <div class="howto-section">
+      <h3>CSVエクスポート / インポート</h3>
+      <ul>
+        <li>「CSVエクスポート」でExcel・Googleスプレッドシートで開けるファイルが書き出される</li>
+        <li>エクスポートしたCSVを保管しておくことでデータのバックアップになる</li>
+        <li>「CSVインポート（復元）」でバックアップファイルを読み込み、データを復元できる</li>
+        <li>インポートすると既存のデータに追加される（上書きではない）</li>
+      </ul>
+    </div>
+
+    <div class="howto-section">
+      <h3>注意事項</h3>
+      <ul>
+        <li class="warn-item">データはこのPCのChromeブラウザの中に保存される。<strong>ブラウザが違う・PCが違うと見えない</strong></li>
+        <li class="warn-item">Chromeの「閲覧履歴データの削除」を行うとデータが消える。スタッフ全員に周知すること</li>
+        <li class="warn-item">PCの故障・交換に備えて、<strong>月1回はCSVエクスポートしてGoogleドライブに保存する</strong>こと</li>
+        <li class="warn-item">ブラウザの「シークレットモード」では保存されない</li>
+        <li>各校舎で使用するPCとブラウザを1台に固定して運用することを推奨する</li>
+        <li>マスターデータはページをリロードするとデフォルトに戻る（参考書の追加・削除は再起動後に消える）</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+const LS_KEY='sugoi_juku_progress_v1';
+
 let MASTER={
   '英語':{'速読英熟語':{total:360,days:60,unit:'p'},'英文法ポラリス 1':{total:180,days:45,unit:'p'},'英文法ポラリス 2':{total:160,days:40,unit:'p'},'関正生の英語長文ポラリス 1':{total:10,days:30,unit:'問'},'関正生の英語長文ポラリス 2':{total:10,days:30,unit:'問'},'システム英単語':{total:2027,days:60,unit:'単語'},'鉄壁':{total:1600,days:90,unit:'単語'},'NextStage':{total:800,days:60,unit:'p'},'Vintage':{total:850,days:60,unit:'p'},'英語長文ハイパートレーニング 1':{total:6,days:18,unit:'題'},'英語長文ハイパートレーニング 2':{total:6,days:21,unit:'題'},'英語長文ハイパートレーニング 3':{total:6,days:21,unit:'題'}},
   '数学':{'青チャート 数学Ⅰ+A':{total:364,days:90,unit:'例題'},'青チャート 数学Ⅱ+B':{total:411,days:120,unit:'例題'},'青チャート 数学Ⅲ':{total:181,days:90,unit:'例題'},'黄チャート 数学Ⅰ+A':{total:338,days:90,unit:'例題'},'黄チャート 数学Ⅱ+B':{total:375,days:100,unit:'例題'},'基礎問題精講 数学Ⅰ+A':{total:101,days:45,unit:'題'},'基礎問題精講 数学Ⅱ+B':{total:167,days:60,unit:'題'},'理系数学の良問プラチカ':{total:149,days:60,unit:'題'},'文系の数学 重要事項完全習得編':{total:132,days:45,unit:'題'}},
@@ -174,6 +288,7 @@ const PACES=[
 
 const today=new Date();today.setHours(0,0,0,0);
 const fmt=d=>d.toISOString().slice(0,10);
+const fmtJP=d=>{const dt=new Date(d);return`${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()}`};
 const addD=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
 let selectedSubject=Object.keys(MASTER)[0];
 
@@ -183,12 +298,217 @@ function computeEnd(s){
   return{date:fmt(addD(new Date(s.start),days)),days};
 }
 
+// ---- LocalStorage ----
+function loadAllRecords(){
+  try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch{return[];}
+}
+function saveAllRecords(arr){
+  localStorage.setItem(LS_KEY,JSON.stringify(arr));
+}
+function getStudentNames(){
+  const records=loadAllRecords();
+  return [...new Set(records.map(r=>r.student))].filter(Boolean);
+}
+function refreshStudentSelects(){
+  const names=getStudentNames();
+  // progress tab select
+  const sel=document.getElementById('studentSelect');
+  sel.innerHTML='<option value="">-- 過去の生徒から選ぶ --</option>'+names.map(n=>`<option value="${n}">${n}</option>`).join('');
+  sel.style.display=names.length?'block':'none';
+  // record tab filter
+  const fil=document.getElementById('filterStudent');
+  const cur=fil.value;
+  fil.innerHTML='<option value="">全員</option>'+names.map(n=>`<option value="${n}"${n===cur?' selected':''}>${n}</option>`).join('');
+}
+
 // ---- Tab ----
 function switchTab(t){
-  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['progress','master'][i]===t));
+  const tabs=['progress','record','master','howto'];
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',tabs[i]===t));
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
   document.getElementById('pane-'+t).classList.add('active');
   if(t==='master') renderMaster();
+  if(t==='record'){refreshStudentSelects();renderRecords();}
+}
+
+// ---- Student input ----
+function onStudentInput(){
+  const name=document.getElementById('studentName').value.trim();
+  // 過去データがあれば候補を表示
+  const names=getStudentNames();
+  const sel=document.getElementById('studentSelect');
+  if(names.length){
+    sel.style.display='block';
+    sel.value=names.includes(name)?name:'';
+  }
+}
+
+function loadStudent(name){
+  if(!name)return;
+  document.getElementById('studentName').value=name;
+  const records=loadAllRecords();
+  // 同じ生徒の最新記録を取得
+  const studentRecs=records.filter(r=>r.student===name).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!studentRecs.length)return;
+  const latest=studentRecs[0];
+  // pagesを復元
+  pages.length=0;
+  // 6スロットずつページに分割
+  const slots=latest.slots;
+  for(let p=0;p<Math.ceil(slots.length/6);p++){
+    const page=[];
+    for(let i=0;i<6;i++){
+      page.push(slots[p*6+i]||emptySlot());
+    }
+    pages.push(page);
+  }
+  if(!pages.length) pages.push(Array.from({length:6},emptySlot));
+  currentPage=0;
+  renderPage();
+}
+
+// ---- Save Record ----
+function saveRecord(){
+  const name=document.getElementById('studentName').value.trim();
+  if(!name){alert('生徒名を入力してください');return;}
+  const records=loadAllRecords();
+  const dateStr=fmtJP(today);
+  // 全スロットを1配列にフラット化
+  const slots=pages.flat();
+  records.push({date:dateStr,student:name,slots:JSON.parse(JSON.stringify(slots))});
+  saveAllRecords(records);
+  refreshStudentSelects();
+  // 保存メッセージ
+  const msg=document.getElementById('saveMsg');
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),2000);
+}
+
+// ---- Render Records ----
+function renderRecords(){
+  const records=loadAllRecords();
+  const filter=document.getElementById('filterStudent').value;
+  const filtered=filter?records.filter(r=>r.student===filter):records;
+  // 新しい順にソート
+  filtered.sort((a,b)=>b.date.localeCompare(a.date));
+
+  if(!filtered.length){
+    document.getElementById('recContent').innerHTML='<div class="rec-empty">記録がありません。</div>';
+    return;
+  }
+
+  // 行を展開：生徒×日付×参考書ごとに1行
+  let rows='';
+  filtered.forEach(r=>{
+    r.slots.filter(s=>s.bookName).forEach(s=>{
+      const pct=s.total>0?Math.round(s.current/s.total*100):0;
+      const pctColor=pct>=80?'#EAF3DE;color:#3B6D11':pct>=50?'#E6F1FB;color:#185FA5':'#FAECE7;color:#993C1D';
+      rows+=`<tr>
+        <td>${r.date}</td>
+        <td>${r.student}</td>
+        <td>${s.subject||''}</td>
+        <td>${s.bookName}</td>
+        <td style="text-align:right">${s.current.toLocaleString()}</td>
+        <td style="text-align:right">${s.total.toLocaleString()}</td>
+        <td>${s.unit}</td>
+        <td style="text-align:center"><span class="pct-pill" style="background:${pctColor}">${pct}%</span></td>
+        <td>${s.pace==='slow'?'半速':s.pace==='fast'?'倍速':'標準'}</td>
+      </tr>`;
+    });
+  });
+
+  document.getElementById('recContent').innerHTML=`
+    <div style="font-size:11px;color:#aaa;margin-bottom:8px">${filtered.length}件の記録 / ${filtered.reduce((n,r)=>n+r.slots.filter(s=>s.bookName).length,0)}行</div>
+    <div class="rec-table-wrap">
+    <table class="rec-table">
+      <thead><tr><th>日付</th><th>生徒名</th><th>科目</th><th>参考書名</th><th style="text-align:right">進捗</th><th style="text-align:right">総数</th><th>単位</th><th style="text-align:center">達成率</th><th>ペース</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+
+// ---- CSV Export ----
+function exportCSV(){
+  const records=loadAllRecords();
+  if(!records.length){alert('記録がありません');return;}
+  const header='日付,生徒名,科目,参考書名,進捗,総数,単位,達成率(%),ペース,開始日\n';
+  const body=records.flatMap(r=>
+    r.slots.filter(s=>s.bookName).map(s=>{
+      const pct=s.total>0?Math.round(s.current/s.total*100):0;
+      const pace=s.pace==='slow'?'半速':s.pace==='fast'?'倍速':'標準';
+      return[r.date,r.student,s.subject||'',s.bookName,s.current,s.total,s.unit,pct,pace,s.start].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
+    })
+  ).join('\n');
+  const bom='\uFEFF';
+  const blob=new Blob([bom+header+body],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`進捗記録_${fmtJP(today).replace(/\//g,'-')}.csv`;
+  a.click();URL.revokeObjectURL(url);
+}
+
+// ---- CSV Import ----
+function importCSV(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const text=e.target.result.replace(/^\uFEFF/,'');
+      const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+      if(lines.length<2){alert('データが見つかりません');return;}
+      const headers=parseCsvRow(lines[0]);
+      // インポートはrecords形式で再構築（日付×生徒ごとにスロット配列を作る）
+      const map={};
+      for(let i=1;i<lines.length;i++){
+        const cols=parseCsvRow(lines[i]);
+        if(cols.length<6)continue;
+        const date=cols[0],student=cols[1],subject=cols[2],bookName=cols[3];
+        const current=parseInt(cols[4])||0,total=parseInt(cols[5])||1,unit=cols[6]||'p';
+        const paceStr=cols[8]||'標準';
+        const pace=paceStr==='半速'?'slow':paceStr==='倍速'?'fast':'normal';
+        const start=cols[9]||fmt(today);
+        const key=`${date}__${student}`;
+        if(!map[key]) map[key]={date,student,slots:[]};
+        // マスターからbaseDaysを取得
+        const baseDays=(MASTER[subject]&&MASTER[subject][bookName])?MASTER[subject][bookName].days:60;
+        map[key].slots.push({subject,bookName,current,total,unit,pace,start,baseDays});
+      }
+      // 既存レコードにマージ（同じ日付×生徒は上書き）
+      const existing=loadAllRecords();
+      const existingKeys=new Set(existing.map(r=>`${r.date}__${r.student}`));
+      const newRecs=Object.values(map).filter(r=>!existingKeys.has(`${r.date}__${r.student}`));
+      const merged=[...existing,...newRecs];
+      saveAllRecords(merged);
+      refreshStudentSelects();
+      renderRecords();
+      alert(`インポート完了。${newRecs.length}件の記録を追加しました。`);
+    }catch(err){
+      alert('CSVの読み込みに失敗しました。エクスポートしたファイルをそのまま使用してください。');
+    }
+    input.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function parseCsvRow(row){
+  const result=[];
+  let cur='',inQ=false;
+  for(let i=0;i<row.length;i++){
+    if(row[i]==='"'){
+      if(inQ&&row[i+1]==='"'){cur+='"';i++;}
+      else inQ=!inQ;
+    }else if(row[i]===','&&!inQ){result.push(cur);cur='';}
+    else cur+=row[i];
+  }
+  result.push(cur);
+  return result;
+}
+
+function clearAllRecords(){
+  if(!confirm('全ての記録を削除します。この操作は取り消せません。先にCSVエクスポートしておくことをおすすめします。\n\n本当に削除しますか？'))return;
+  saveAllRecords([]);
+  refreshStudentSelects();
+  renderRecords();
 }
 
 // ---- Master ----
@@ -205,12 +525,12 @@ function renderBookPanel(){
       <td>${name}</td>
       <td style="text-align:right">${d.total.toLocaleString()}</td>
       <td style="text-align:center">${d.unit}</td>
-      <td style="text-align:right">${d.days}日 <span style="font-size:9px;color:#bbb">(半速${d.days*2}日 / 倍速${Math.round(d.days/2)}日)</span></td>
+      <td style="text-align:right">${d.days}日 <span style="font-size:9px;color:#bbb">(半速${d.days*2}日/倍速${Math.round(d.days/2)}日)</span></td>
       <td style="text-align:center"><button class="del-btn" onclick="deleteBook('${selectedSubject}','${name.replace(/'/g,"\\'")}')">削除</button></td>
     </tr>`).join('');
   document.getElementById('bookPanel').innerHTML=`
     <div style="font-size:13px;font-weight:600;margin-bottom:8px">「${selectedSubject}」<span style="font-size:11px;font-weight:400;color:#bbb"> ${Object.keys(books).length}冊</span></div>
-    ${rows?`<table class="book-table"><thead><tr><th>参考書名</th><th style="text-align:right">総数</th><th style="text-align:center">単位</th><th style="text-align:right">標準期間（ペース別）</th><th></th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty-state">まだ登録がありません</div>'}
+    ${rows?`<table class="book-table"><thead><tr><th>参考書名</th><th style="text-align:right">総数</th><th>単位</th><th style="text-align:right">標準期間（ペース別）</th><th></th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty-state">まだ登録がありません</div>'}
     <div class="add-book-form"><h3>新しい参考書を追加（標準ペースで登録）</h3>
     <div class="form-row">
       <div class="fg fg-name"><label>参考書名</label><input type="text" id="nb_name" placeholder="例：リードLightノート化学"></div>
@@ -255,18 +575,21 @@ function calcData(s){
   const totalMs=en-st,totalDays=totalMs/86400000;
   const todayDays=Math.min(totalDays,Math.max(0,(today-st)/86400000));
   const todayFrac=todayDays/totalDays;
-  const weeks=Math.min(8,Math.ceil(totalDays/7));
   const labels=[],idealData=[],actualData=[];
-  for(let w=1;w<=weeks;w++){
-    const frac=Math.min(1,w/weeks);
-    const d=new Date(st.getTime()+frac*totalMs);
+  for(let day=7;day<totalDays;day+=7){
+    const d=new Date(st.getTime()+day*86400000);
+    const frac=day/totalDays;
     labels.push(`${d.getMonth()+1}/${d.getDate()}`);
     idealData.push(Math.round(s.total*frac));
-    if(frac<=todayFrac+0.01){
-      const af=Math.min(frac,todayFrac);
-      actualData.push(todayFrac>0?Math.min(Math.round(s.current*(af/todayFrac)),s.total):0);
+    if(day<=todayDays+0.5){
+      const af=Math.min(day,todayDays)/totalDays;
+      actualData.push(todayDays>0?Math.min(Math.round(s.current*(af/todayFrac)),s.total):0);
     }else{actualData.push(null);}
   }
+  const endLabel=`${en.getMonth()+1}/${en.getDate()}`;
+  labels.push(endLabel);
+  idealData.push(s.total);
+  actualData.push(totalDays<=todayDays+0.5?Math.min(s.current,s.total):null);
   const idealNow=Math.round(s.total*todayFrac);
   return{labels,idealData,actualData,diff:s.current-idealNow,pct:Math.round(s.current/s.total*100)};
 }
@@ -276,12 +599,8 @@ function getStatus(d){
   if(d.diff<-5)return{cls:'behind',label:`${d.diff} 遅延`};
   return{cls:'on-track',label:'順調'};
 }
-function mkBarColors(d){
-  return(d?d.actualData:[]).map((a,i)=>a===null?'rgba(0,0,0,0)':a>=(d.idealData[i])?'rgba(55,138,221,0.72)':'rgba(216,90,48,0.72)');
-}
-function mkBarBorders(d){
-  return(d?d.actualData:[]).map((a,i)=>a===null?'rgba(0,0,0,0)':a>=(d.idealData[i])?'#378ADD':'#D85A30');
-}
+function mkBarColors(d){return(d?d.actualData:[]).map((a,i)=>a===null?'rgba(0,0,0,0)':a>=(d.idealData[i])?'rgba(55,138,221,0.72)':'rgba(216,90,48,0.72)');}
+function mkBarBorders(d){return(d?d.actualData:[]).map((a,i)=>a===null?'rgba(0,0,0,0)':a>=(d.idealData[i])?'#378ADD':'#D85A30');}
 
 function updateCard(pg,idx){
   const s=pages[pg][idx],key=`${pg}_${idx}`;
@@ -295,22 +614,12 @@ function updateCard(pg,idx){
   ch.data.datasets[1].data=d?d.idealData:[];
   ch.options.scales.y.max=s.total||1;
   ch.update('none');
-
   const el=id=>document.getElementById(`${id}_${key}`);
-  // top area
   if(el('sname'))el('sname').textContent=s.bookName||(s.subject||`参考書 ${idx+1}`);
   if(el('badge')){el('badge').textContent=st.label;el('badge').className=`badge ${st.cls}`;}
-  if(el('gfill')&&d){
-    el('gfill').style.width=Math.min(100,Math.max(0,d.pct))+'%';
-    el('gfill').style.background=d.diff>=0?'#378ADD':'#D85A30';
-  }
+  if(el('gfill')&&d){el('gfill').style.width=Math.min(100,Math.max(0,d.pct))+'%';el('gfill').style.background=d.diff>=0?'#378ADD':'#D85A30';}
   if(el('gleft')&&d)el('gleft').textContent=`${s.current}${s.unit} / ${s.total}${s.unit}`;
-  if(el('gright')&&d){
-    const abs=Math.abs(d.diff);
-    el('gright').textContent=d.diff>5?`+${d.diff}${s.unit} 先行`:d.diff<-5?`${abs}${s.unit} 遅れ`:'ほぼ順調';
-    el('gright').style.color=d.diff<-5?'#993C1D':d.diff>5?'#3B6D11':'#185FA5';
-  }
-  // inputs area
+  if(el('gright')&&d){const abs=Math.abs(d.diff);el('gright').textContent=d.diff>5?`+${d.diff}${s.unit} 先行`:d.diff<-5?`${abs}${s.unit} 遅れ`:'ほぼ順調';el('gright').style.color=d.diff<-5?'#993C1D':d.diff>5?'#3B6D11':'#185FA5';}
   const{date:endStr,days:endDays}=computeEnd(s);
   const endD=new Date(endStr);
   if(el('enddisp'))el('enddisp').innerHTML=`<span class="end-date">${endD.getFullYear()}/${endD.getMonth()+1}/${endD.getDate()}</span><span class="end-days">(${endDays}日間)</span>`;
@@ -386,10 +695,8 @@ function buildCard(pg,idx){
     </div>
   </div>
 </div>`;
-
   document.getElementById('bookGrid').appendChild(card);
 
-  // Events
   document.getElementById(`subj_${key}`).addEventListener('change',e=>{
     pages[pg][idx].subject=e.target.value;pages[pg][idx].bookName='';
     const bsel=document.getElementById(`book_${key}`);
@@ -412,29 +719,22 @@ function buildCard(pg,idx){
     document.getElementById(`${fid}_${key}`).addEventListener('input',e=>{pages[pg][idx][prop]=parse(e.target.value);updateCard(pg,idx);});
   });
 
-  // Chart
   chartMap[key]=new Chart(document.getElementById(`cv_${key}`),{
     type:'bar',
-    data:{
-      labels:d?d.labels:[],
-      datasets:[
-        {type:'bar',label:'実績',data:d?d.actualData:[],backgroundColor:bc,borderColor:bb,borderWidth:1,borderRadius:2,order:2},
-        {type:'line',label:'理想ペース',data:d?d.idealData:[],borderColor:'#378ADD',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#378ADD',pointBorderColor:'#fff',pointBorderWidth:1,tension:0.3,fill:false,order:1}
-      ]
-    },
+    data:{labels:d?d.labels:[],datasets:[
+      {type:'bar',label:'実績',data:d?d.actualData:[],backgroundColor:bc,borderColor:bb,borderWidth:1,borderRadius:2,order:2},
+      {type:'line',label:'理想ペース',data:d?d.idealData:[],borderColor:'#378ADD',borderWidth:1.5,pointRadius:2,pointBackgroundColor:'#378ADD',pointBorderColor:'#fff',pointBorderWidth:1,tension:0.3,fill:false,order:1}
+    ]},
     options:{
       responsive:true,maintainAspectRatio:false,animation:false,
-      plugins:{
-        legend:{display:false},
-        tooltip:{mode:'index',intersect:false,callbacks:{label:c=>{
-          if(c.dataset.label==='理想ペース')return `理想: ${c.parsed.y}${s.unit}`;
-          if(c.parsed.y===null)return null;
-          const diff=c.parsed.y-c.chart.data.datasets[1].data[c.dataIndex];
-          return `実績: ${c.parsed.y}${s.unit}　(${diff>=0?'+':''}${diff}${s.unit})`;
-        }}}
-      },
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>{
+        if(c.dataset.label==='理想ペース')return `理想: ${c.parsed.y}${s.unit}`;
+        if(c.parsed.y===null)return null;
+        const diff=c.parsed.y-c.chart.data.datasets[1].data[c.dataIndex];
+        return `実績: ${c.parsed.y}${s.unit}　(${diff>=0?'+':''}${diff}${s.unit})`;
+      }}}},
       scales:{
-        x:{ticks:{font:{size:8},maxRotation:0,color:'#bbb'},grid:{display:false},border:{display:false}},
+        x:{ticks:{font:{size:8},maxRotation:0,color:'#bbb',autoSkip:true,maxTicksLimit:9},grid:{display:false},border:{display:false}},
         y:{min:0,max:s.total||1,ticks:{font:{size:8},maxTicksLimit:4,color:'#bbb'},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
       }
     }
@@ -454,6 +754,8 @@ function renderPage(){
 function changePage(dir){currentPage=Math.max(0,Math.min(pages.length-1,currentPage+dir));renderPage();}
 function addPage(){pages.push(Array.from({length:6},emptySlot));currentPage=pages.length-1;renderPage();}
 
+// 初期化
+refreshStudentSelects();
 renderPage();
 </script>
 </body>
