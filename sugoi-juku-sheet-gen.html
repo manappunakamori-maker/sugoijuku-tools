@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>週次進捗シート 生成ツール</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;background:#f5f4f0;color:#1a1a1a;min-height:100vh}
+.site-header{background:#1a1a1a;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.site-header h1{font-size:14px;font-weight:600;letter-spacing:.02em}
+.site-header a{font-size:11px;color:rgba(255,255,255,.5);text-decoration:none}
+.site-header a:hover{color:#fff}
+.container{max-width:960px;margin:0 auto;padding:20px 16px 60px}
+.desc{font-size:12px;color:#888;margin-bottom:16px;line-height:1.7;background:#fff;border:1px solid #e8e6e0;border-radius:9px;padding:10px 14px}
+.desc strong{color:#1a1a1a}
+
+/* 追加フォーム */
+.add-panel{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.add-panel h2{font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:10px;color:#999;font-weight:500}
+.fg input,.fg select{font-size:12px;height:30px;padding:3px 8px;border:1px solid #ddd;border-radius:6px;font-family:inherit;color:#1a1a1a}
+.fg input:focus,.fg select:focus{outline:none;border-color:#378ADD}
+.add-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn-add{font-size:12px;padding:6px 16px;background:#1a1a1a;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:inherit}
+.btn-add:hover{background:#333}
+.pace-note{font-size:10px;color:#888;background:#f5f4f0;padding:4px 9px;border-radius:5px}
+
+/* 参考書カード */
+.books-area{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.book-card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;overflow:hidden}
+.book-card-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none}
+.book-card-header:hover{background:#faf9f6}
+.book-title{display:flex;align-items:center;gap:10px;min-width:0}
+.book-num{font-size:9px;color:#bbb;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.book-name{font-size:13px;font-weight:700;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.book-meta{font-size:10px;color:#aaa;white-space:nowrap}
+.book-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-del{font-size:10px;padding:3px 8px;color:#bbb;border:1px solid #e0ddd5;border-radius:5px;cursor:pointer;background:none;font-family:inherit}
+.btn-del:hover{color:#993C1D;border-color:#993C1D}
+.chevron{font-size:11px;color:#bbb;transition:transform .2s;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.book-body{display:none;border-top:1px solid #f0eeea}
+.book-body.open{display:grid;grid-template-columns:1fr 260px;gap:0}
+.preview-wrap{padding:12px 14px;border-right:1px solid #f0eeea;overflow-x:auto}
+.info-row{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.info-item{font-size:11px;color:#666}
+.info-item strong{color:#1a1a1a;font-weight:700}
+table.preview{border-collapse:collapse;font-size:11px;width:100%;min-width:260px}
+table.preview th{font-size:9px;font-weight:700;color:#aaa;text-align:left;padding:4px 8px;border-bottom:1px solid #e0ddd5;background:#f7f6f2;text-transform:uppercase;letter-spacing:.04em}
+table.preview th.r{text-align:right}
+table.preview td{padding:4px 8px;border-bottom:1px solid #ede9e0;color:#1a1a1a;vertical-align:middle}
+table.preview td.r{text-align:right}
+table.preview td.muted{color:#bbb}
+table.preview tr.today-row td{background:#f0f8ff}
+.week-badge{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;background:#E6F1FB;color:#185FA5;font-weight:700;margin-left:3px}
+.chart-side{padding:12px;display:flex;flex-direction:column;gap:8px}
+.chart-side-title{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.04em}
+.chart-wrap{position:relative;height:180px}
+.btn-png{font-size:10px;padding:4px 10px;background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer;font-family:inherit;color:#666;width:100%}
+.btn-png:hover{background:#f0eeea}
+
+/* ダウンロードバー */
+.dl-bar{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dl-bar-left{font-size:12px;color:#666}
+.dl-bar-left strong{color:#1a1a1a}
+.dl-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-dl{font-size:12px;padding:7px 18px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:600}
+.btn-dl:hover{background:#0e4a80}
+.btn-pdf{font-size:12px;padding:7px 18px;background:#1a1a1a;color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:600}
+.btn-pdf:hover{background:#333}
+.btn-dl:disabled,.btn-pdf:disabled{opacity:.35;cursor:default}
+.empty-note{text-align:center;padding:28px;color:#bbb;font-size:12px;background:#fff;border:1px dashed #ddd;border-radius:10px}
+
+/* 印刷用PDF */
+@media print{
+  body{background:#fff}
+  .site-header,.container>.desc,.add-panel,.dl-bar,.book-card-header .book-actions,.btn-png{display:none!important}
+  .book-card{border:none;border-radius:0;page-break-inside:avoid;margin-bottom:24px}
+  .book-card-header{cursor:default;padding:6px 0;border-bottom:2px solid #1a1a1a;margin-bottom:8px}
+  .book-card-header .chevron{display:none}
+  .book-name{font-size:15px!important}
+  .book-body{display:grid!important;grid-template-columns:1fr 280px!important;border-top:none!important}
+  .book-body.open,.book-body{display:grid!important}
+  .chart-side{padding:8px 0 8px 12px}
+  .chart-wrap{height:200px!important}
+}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <h1>週次進捗シート 生成ツール</h1>
+  <a href="sugoi-juku-progress.html">← 進捗グラフに戻る</a>
+</div>
+
+<div class="container">
+  <div class="desc">
+    参考書ごとに<strong>7日間隔の理想ペース</strong>を自動計算します。<br>
+    「xlsxダウンロード」は進捗を毎週入力するための記録シート。「グラフPDF保存」は目標ラインのグラフ付き資料を印刷・PDF保存できます。
+  </div>
+
+  <div class="add-panel">
+    <h2>参考書を追加</h2>
+    <div class="form-grid">
+      <div class="fg">
+        <label>科目</label>
+        <select id="f_subj" onchange="onSubjChange()">
+          <option value="">-- 科目 --</option>
+        </select>
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <label>参考書名（セレクトまたは直接入力）</label>
+        <select id="f_book" onchange="onBookChange()">
+          <option value="">-- 参考書 --</option>
+        </select>
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <label>参考書名（直接入力）</label>
+        <input type="text" id="f_name" placeholder="例：青チャートⅠ+A">
+      </div>
+      <div class="fg">
+        <label>ペース</label>
+        <select id="f_pace" onchange="updatePaceNote()">
+          <option value="normal">標準</option>
+          <option value="slow">半速</option>
+          <option value="fast">倍速</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>総数</label>
+        <input type="number" id="f_total" value="200" min="1" oninput="updatePaceNote()">
+      </div>
+      <div class="fg">
+        <label>単位</label>
+        <select id="f_unit">
+          <option>問</option><option>p</option><option>題</option><option>例題</option><option>単語</option><option>章</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>開始日</label>
+        <input type="date" id="f_start" onchange="updatePaceNote()">
+      </div>
+      <div class="fg">
+        <label>標準期間（日）</label>
+        <input type="number" id="f_days" value="60" min="7" oninput="updatePaceNote()">
+      </div>
+    </div>
+    <div class="add-row">
+      <button class="btn-add" onclick="addBook()">+ 追加してプレビュー</button>
+      <span class="pace-note" id="paceNote">終了日：自動計算されます</span>
+    </div>
+  </div>
+
+  <div class="books-area" id="booksArea">
+    <div class="empty-note" id="emptyNote">まだ参考書が追加されていません。</div>
+  </div>
+
+  <div class="dl-bar">
+    <div class="dl-bar-left"><strong id="dlCount">0冊</strong>のシートを生成します</div>
+    <div class="dl-btns">
+      <button class="btn-pdf" id="pdfBtn" onclick="window.print()" disabled>グラフ PDF保存</button>
+      <button class="btn-dl" id="dlBtn" onclick="downloadXlsx()" disabled>xlsx ダウンロード</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const MASTER={
+  '英語':{'速読英熟語':{total:360,days:60,unit:'p'},'英文法ポラリス 1':{total:180,days:45,unit:'p'},'英文法ポラリス 2':{total:160,days:40,unit:'p'},'関正生の英語長文ポラリス 1':{total:10,days:30,unit:'問'},'関正生の英語長文ポラリス 2':{total:10,days:30,unit:'問'},'システム英単語':{total:2027,days:60,unit:'単語'},'鉄壁':{total:1600,days:90,unit:'単語'},'NextStage':{total:800,days:60,unit:'p'},'Vintage':{total:850,days:60,unit:'p'},'英語長文ハイパートレーニング 1':{total:6,days:18,unit:'題'},'英語長文ハイパートレーニング 2':{total:6,days:21,unit:'題'},'英語長文ハイパートレーニング 3':{total:6,days:21,unit:'題'}},
+  '数学':{'青チャート 数学Ⅰ+A':{total:364,days:90,unit:'例題'},'青チャート 数学Ⅱ+B':{total:411,days:120,unit:'例題'},'青チャート 数学Ⅲ':{total:181,days:90,unit:'例題'},'黄チャート 数学Ⅰ+A':{total:338,days:90,unit:'例題'},'黄チャート 数学Ⅱ+B':{total:375,days:100,unit:'例題'},'基礎問題精講 数学Ⅰ+A':{total:101,days:45,unit:'題'},'基礎問題精講 数学Ⅱ+B':{total:167,days:60,unit:'題'},'理系数学の良問プラチカ':{total:149,days:60,unit:'題'},'文系の数学 重要事項完全習得編':{total:132,days:45,unit:'題'}},
+  '現代文':{'入試現代文へのアクセス 基本編':{total:12,days:28,unit:'題'},'入試現代文へのアクセス 発展編':{total:12,days:28,unit:'題'},'現代文と格闘する':{total:12,days:40,unit:'題'},'ゼロから覚醒 はじめよう現代文':{total:120,days:30,unit:'p'}},
+  '古文':{'望月光 古典文法 上':{total:320,days:30,unit:'p'},'望月光 古典文法 下':{total:320,days:30,unit:'p'},'マドンナ古文単語 230':{total:230,days:30,unit:'単語'},'読んでみて覚える古文単語 315':{total:315,days:40,unit:'単語'},'古文上達 基礎編':{total:32,days:30,unit:'題'},'古文上達 56':{total:56,days:45,unit:'題'}},
+  '物理':{'物理のエッセンス 力学・波動':{total:196,days:40,unit:'問'},'物理のエッセンス 電磁気・熱・原子':{total:190,days:40,unit:'問'},'良問の風 物理':{total:122,days:45,unit:'問'},'名問の森 力学・熱・波動Ⅰ':{total:52,days:30,unit:'問'},'物理重要問題集':{total:181,days:60,unit:'問'}},
+  '化学':{'基礎問題精講 化学':{total:130,days:45,unit:'題'},'化学重要問題集':{total:300,days:75,unit:'問'},'Do シリーズ 理論化学':{total:200,days:40,unit:'p'},'Do シリーズ 無機化学':{total:160,days:30,unit:'p'},'Do シリーズ 有機化学':{total:180,days:35,unit:'p'}},
+  '生物':{'基礎問題精講 生物':{total:130,days:40,unit:'題'},'生物重要問題集':{total:237,days:60,unit:'問'}},
+  '日本史':{'日本史 一問一答 完全版':{total:4600,days:90,unit:'問'},'HISTORIA 日本史精選問題集':{total:400,days:60,unit:'問'},'金谷の日本史「なぜ」と「流れ」がわかる本':{total:240,days:30,unit:'p'}},
+  '世界史':{'世界史 一問一答 完全版':{total:4600,days:90,unit:'問'},'タテから見る世界史':{total:240,days:30,unit:'p'},'ヨコから見る世界史':{total:220,days:30,unit:'p'},'実力をつける世界史 100題':{total:100,days:50,unit:'題'}},
+  '地理':{'村瀬のゼロからわかる地理B 系統地理':{total:330,days:40,unit:'p'},'村瀬のゼロからわかる地理B 地誌':{total:300,days:40,unit:'p'},'地理B 一問一答 完全版':{total:3000,days:60,unit:'問'}},
+};
+const PACES={slow:0.5,normal:1.0,fast:2.0};
+const today=new Date();today.setHours(0,0,0,0);
+const fmtDate=d=>`${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+const addD=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
+let books=[];
+const chartInstances={};
+
+(function init(){
+  document.getElementById('f_start').value=today.toISOString().slice(0,10);
+  const s=document.getElementById('f_subj');
+  Object.keys(MASTER).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;s.appendChild(o);});
+  updatePaceNote();
+})();
+
+function onSubjChange(){
+  const subj=document.getElementById('f_subj').value;
+  const b=document.getElementById('f_book');
+  b.innerHTML='<option value="">-- 参考書 --</option>';
+  if(subj&&MASTER[subj]) Object.keys(MASTER[subj]).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;b.appendChild(o);});
+  updatePaceNote();
+}
+function onBookChange(){
+  const subj=document.getElementById('f_subj').value;
+  const book=document.getElementById('f_book').value;
+  if(book&&MASTER[subj]&&MASTER[subj][book]){
+    const m=MASTER[subj][book];
+    document.getElementById('f_name').value=book;
+    document.getElementById('f_total').value=m.total;
+    document.getElementById('f_unit').value=m.unit||'問';
+    document.getElementById('f_days').value=m.days;
+  }
+  updatePaceNote();
+}
+function updatePaceNote(){
+  const days=parseInt(document.getElementById('f_days').value)||60;
+  const pace=document.getElementById('f_pace').value;
+  const actual=Math.round(days/(PACES[pace]||1));
+  const st=new Date(document.getElementById('f_start').value);
+  if(!isNaN(st)) document.getElementById('paceNote').textContent=`終了日：${fmtDate(addD(st,actual))}（${actual}日間）`;
+}
+
+function computeRows(book){
+  const actual=Math.round(book.baseDays/(PACES[book.pace]||1));
+  const st=new Date(book.start);
+  const rows=[];
+  for(let day=7;day<=actual+6;day+=7){
+    const dt=addD(st,day);
+    const ideal=Math.min(Math.round(book.total/actual*day),book.total);
+    rows.push({date:fmtDate(dt),ideal,isPast:dt<today,isNearToday:Math.abs(dt-today)<7*86400000+1});
+  }
+  return rows;
+}
+
+function addBook(){
+  const name=(document.getElementById('f_name').value.trim()||document.getElementById('f_book').value);
+  const total=parseInt(document.getElementById('f_total').value)||1;
+  const unit=document.getElementById('f_unit').value;
+  const start=document.getElementById('f_start').value;
+  const pace=document.getElementById('f_pace').value;
+  const baseDays=parseInt(document.getElementById('f_days').value)||60;
+  if(!name){alert('参考書名を入力してください');return;}
+  if(!start){alert('開始日を入力してください');return;}
+  const book={id:Date.now(),name,total,unit,start,pace,baseDays};
+  books.push(book);
+  renderBooks();
+  document.getElementById('f_name').value='';
+  document.getElementById('f_book').value='';
+}
+
+function removeBook(id){
+  if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}
+  books=books.filter(b=>b.id!==id);
+  renderBooks();
+}
+
+function toggleBody(id){
+  const body=document.getElementById(`body_${id}`);
+  const chev=document.getElementById(`chev_${id}`);
+  const wasOpen=body.classList.contains('open');
+  body.classList.toggle('open',!wasOpen);
+  chev.classList.toggle('open',!wasOpen);
+  if(!wasOpen) setTimeout(()=>buildChart(id),50);
+}
+
+function buildChart(id){
+  const book=books.find(b=>b.id===id);
+  if(!book) return;
+  const canvas=document.getElementById(`cv_${id}`);
+  if(!canvas) return;
+  if(chartInstances[id]){chartInstances[id].destroy();}
+  const rows=computeRows(book);
+  const labels=rows.map(r=>r.date);
+  const idealData=rows.map(r=>r.ideal);
+  // 進捗は全部null（まだ入力前）
+  const actualData=rows.map(()=>null);
+
+  chartInstances[id]=new Chart(canvas,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {
+          type:'bar',
+          label:'進捗',
+          data:actualData,
+          backgroundColor:'rgba(216,90,48,0.65)',
+          borderColor:'#D85A30',
+          borderWidth:1,
+          borderRadius:2,
+          order:2
+        },
+        {
+          type:'line',
+          label:'目標',
+          data:idealData,
+          borderColor:'#378ADD',
+          borderWidth:2,
+          pointRadius:2.5,
+          pointBackgroundColor:'#378ADD',
+          pointBorderColor:'#fff',
+          pointBorderWidth:1.5,
+          tension:0.3,
+          fill:false,
+          order:1
+        }
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:false,
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{font:{size:9},boxWidth:10,padding:8}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y??'（未入力）'}${book.unit}`}}
+      },
+      scales:{
+        x:{ticks:{font:{size:8},maxRotation:45,color:'#aaa',autoSkip:true,maxTicksLimit:10},grid:{display:false},border:{display:false}},
+        y:{min:0,max:book.total,ticks:{font:{size:8},maxTicksLimit:5,color:'#aaa'},grid:{color:'rgba(0,0,0,0.04)'},border:{display:false}}
+      }
+    }
+  });
+}
+
+function downloadChartPng(id){
+  const canvas=document.getElementById(`cv_${id}`);
+  if(!canvas) return;
+  const book=books.find(b=>b.id===id);
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL('image/png');
+  a.download=`${book?book.name:'chart'}_グラフ.png`;
+  a.click();
+}
+
+function renderBooks(){
+  const area=document.getElementById('booksArea');
+  document.getElementById('dlCount').textContent=`${books.length}冊`;
+  document.getElementById('dlBtn').disabled=books.length===0;
+  document.getElementById('pdfBtn').disabled=books.length===0;
+
+  if(!books.length){
+    area.innerHTML='<div class="empty-note" id="emptyNote">まだ参考書が追加されていません。</div>';
+    return;
+  }
+  area.innerHTML='';
+
+  books.forEach((book,i)=>{
+    const actual=Math.round(book.baseDays/(PACES[book.pace]||1));
+    const end=addD(new Date(book.start),actual);
+    const paceLabel=book.pace==='slow'?'半速':book.pace==='fast'?'倍速':'標準';
+    const perWeek=(book.total/actual*7).toFixed(1);
+    const rows=computeRows(book);
+    const unitLabel=book.unit==='単語'?'単語数':book.unit==='p'?'ページ数':'問題数';
+
+    const tableRows=rows.map(r=>`
+      <tr class="${r.isNearToday?'today-row':''}">
+        <td>${r.date}${r.isNearToday?'<span class="week-badge">今週</span>':''}</td>
+        <td class="r">${r.ideal.toLocaleString()}</td>
+        <td class="r muted">—</td>
+      </tr>`).join('');
+
+    const card=document.createElement('div');
+    card.className='book-card';
+    card.id=`card_${book.id}`;
+    card.innerHTML=`
+<div class="book-card-header" onclick="toggleBody(${book.id})">
+  <div class="book-title">
+    <span class="book-num">${i+1}</span>
+    <span class="book-name">${book.name}</span>
+    <span class="book-meta">${book.total.toLocaleString()}${book.unit} / ${paceLabel} / ${actual}日間（〜${fmtDate(end)}）</span>
+  </div>
+  <div class="book-actions">
+    <button class="btn-del" onclick="event.stopPropagation();removeBook(${book.id})">削除</button>
+    <span class="chevron open" id="chev_${book.id}">▼</span>
+  </div>
+</div>
+<div class="book-body open" id="body_${book.id}">
+  <div class="preview-wrap">
+    <div class="info-row">
+      <span class="info-item"><strong>テキスト名</strong>　${book.name}</span>
+      <span class="info-item"><strong>${unitLabel}</strong>　${book.total.toLocaleString()}</span>
+      <span class="info-item"><strong>開始日</strong>　${fmtDate(new Date(book.start))}</span>
+      <span class="info-item"><strong>1週間あたり</strong>　${perWeek}${book.unit}</span>
+    </div>
+    <table class="preview">
+      <thead><tr><th>日付</th><th class="r">目標</th><th class="r">進捗</th></tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+  </div>
+  <div class="chart-side">
+    <div class="chart-side-title">グラフプレビュー</div>
+    <div class="chart-wrap"><canvas id="cv_${book.id}" role="img" aria-label="${book.name}の目標グラフ"></canvas></div>
+    <button class="btn-png" onclick="downloadChartPng(${book.id})">このグラフをPNGで保存</button>
+  </div>
+</div>`;
+    area.appendChild(card);
+    setTimeout(()=>buildChart(book.id),80);
+  });
+}
+
+function downloadXlsx(){
+  if(!books.length) return;
+  const wb=XLSX.utils.book_new();
+  books.forEach((book,bi)=>{
+    const actual=Math.round(book.baseDays/(PACES[book.pace]||1));
+    const perWeek=(book.total/actual*7).toFixed(1);
+    const rows=computeRows(book);
+    const unitLabel=book.unit==='単語'?'単語数':book.unit==='p'?'ページ数':'問題数';
+    const data=[
+      ['テキスト名',book.name,''],
+      [unitLabel,book.total,''],
+      ['開始日',fmtDate(new Date(book.start)),''],
+      ['1週間あたり',Number(perWeek),''],
+      ['','目標','進捗'],
+      ...rows.map(r=>[r.date,r.ideal,'']),
+      ['','',''],
+      ['▼ グラフ貼り付け欄','',''],
+      ...Array(18).fill(['','',''])
+    ];
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    ws['!cols']=[{wch:14},{wch:10},{wch:10},{wch:1},{wch:60}];
+    const pasteRow=rows.length+6;
+    ws['!rows']=[];
+    for(let r=0;r<=pasteRow+18;r++) ws['!rows'][r]=r>=pasteRow+1?{hpt:18}:{hpt:15};
+    const sheetName=book.name.replace(/[\\\/\*\?\[\]:]/g,'').slice(0,20)||`参考書${bi+1}`;
+    XLSX.utils.book_append_sheet(wb,ws,sheetName);
+  });
+  const fname=`進捗シート_${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}.xlsx`;
+  XLSX.writeFile(wb,fname);
+}
+</script>
+</body>
+</html>
