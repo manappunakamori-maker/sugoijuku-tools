@@ -113,6 +113,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .fg-name{flex:1;min-width:120px}
 .empty-state{text-align:center;padding:24px;color:#bbb;font-size:12px}
 .notice-box{font-size:11px;color:#666;background:#f0eeea;padding:7px 10px;border-radius:7px;margin-bottom:10px}
+.master-csv-bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;background:#fff;border:1px solid #e8e6e0;border-radius:9px;padding:10px 14px;margin-bottom:10px}
+.master-csv-label{font-size:11px;font-weight:700;color:#1a1a1a;white-space:nowrap}
+.btn-mcsv-export{font-size:11px;padding:5px 11px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-mcsv-export:hover{background:#333}
+.btn-mcsv-import{font-size:11px;padding:5px 11px;background:#185FA5;color:#fff;border:none;border-radius:6px;cursor:pointer;display:inline-block;white-space:nowrap}
+.btn-mcsv-import:hover{background:#0e4a80}
+.btn-mcsv-dl{font-size:11px;padding:5px 11px;background:#fff;color:#1a1a1a;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.btn-mcsv-dl:hover{background:#f0eeea}
+.master-csv-hint{font-size:10px;color:#aaa}
 
 /* record tab */
 .rec-toolbar{display:flex;gap:7px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
@@ -208,6 +217,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 <!-- マスターデータ編集 -->
 <div class="pane" id="pane-master">
   <div class="notice-box">マスターには「標準ペース」の期間を登録してください。終了日は開始日とペースから自動計算されます。</div>
+  <div class="master-csv-bar">
+    <span class="master-csv-label">スプレッドシートで編集する</span>
+    <button class="btn-mcsv-export" onclick="exportMasterCsv()">① CSVで書き出す</button>
+    <label class="btn-mcsv-import">② 編集済みCSVを読み込む
+      <input type="file" accept=".csv" style="display:none" onchange="importMasterCsv(this)">
+    </label>
+    <button class="btn-mcsv-dl" onclick="downloadMasterJs()">③ master.jsをダウンロード</button>
+    <span class="master-csv-hint">→ GitHubに上書きアップロードで両ツールに反映</span>
+  </div>
   <div class="master-wrap">
     <div class="master-left">
       <div class="add-subj">
@@ -258,6 +276,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
     </div>
 
     <div class="howto-section">
+      <h3>マスターデータをスプレッドシートで編集する方法</h3>
+      <ul>
+        <li><span class="step-num">1</span>「マスターデータ編集」タブを開き、<strong>① CSVで書き出す</strong>を押す</li>
+        <li><span class="step-num">2</span>ダウンロードされたCSVをGoogleスプレッドシートまたはExcelで開く</li>
+        <li><span class="step-num">3</span>総数・標準期間（日）・単位を編集して上書き保存する<br><span style="font-size:10px;color:#aaa;padding-left:22px">※ 参考書名・科目名は変えないこと。列の追加・削除もしないこと</span></li>
+        <li><span class="step-num">4</span><strong>② 編集済みCSVを読み込む</strong>でファイルを選択するとブラウザに即反映される</li>
+        <li><span class="step-num">5</span><strong>③ master.jsをダウンロード</strong>してGitHubリポジトリに上書きアップロードする</li>
+        <li><span class="step-num">6</span>アップロード後は両ツール（進捗グラフ・シート生成）に恒久的に反映される</li>
+      </ul>
+    </div>
+
+    <div class="howto-section">
       <h3>注意事項</h3>
       <ul>
         <li class="warn-item">データはこのPCのChromeブラウザの中に保存される。<strong>ブラウザが違う・PCが違うと見えない</strong></li>
@@ -273,6 +303,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 </div>
 
 <script src="master.js"></script>
+<script>
+// master.jsが読み込めない場合のフォールバック
+if(typeof MASTER==='undefined'){
+  var MASTER={
+    '英語':{'速読英熟語':{total:360,days:60,unit:'p'},'英文法ポラリス 1':{total:180,days:45,unit:'p'},'英文法ポラリス 2':{total:160,days:40,unit:'p'},'関正生の英語長文ポラリス 1':{total:10,days:30,unit:'問'},'関正生の英語長文ポラリス 2':{total:10,days:30,unit:'問'},'システム英単語':{total:2027,days:60,unit:'単語'},'鉄壁':{total:1600,days:90,unit:'単語'},'NextStage':{total:800,days:60,unit:'p'},'Vintage':{total:850,days:60,unit:'p'},'英語長文ハイパートレーニング 1':{total:6,days:18,unit:'題'},'英語長文ハイパートレーニング 2':{total:6,days:21,unit:'題'},'英語長文ハイパートレーニング 3':{total:6,days:21,unit:'題'}},
+    '数学':{'青チャート 数学Ⅰ+A':{total:364,days:90,unit:'例題'},'青チャート 数学Ⅱ+B':{total:411,days:120,unit:'例題'},'青チャート 数学Ⅲ':{total:181,days:90,unit:'例題'},'黄チャート 数学Ⅰ+A':{total:338,days:90,unit:'例題'},'黄チャート 数学Ⅱ+B':{total:375,days:100,unit:'例題'},'基礎問題精講 数学Ⅰ+A':{total:101,days:45,unit:'題'},'基礎問題精講 数学Ⅱ+B':{total:167,days:60,unit:'題'},'理系数学の良問プラチカ':{total:149,days:60,unit:'題'},'文系の数学 重要事項完全習得編':{total:132,days:45,unit:'題'}},
+    '現代文':{'入試現代文へのアクセス 基本編':{total:12,days:28,unit:'題'},'入試現代文へのアクセス 発展編':{total:12,days:28,unit:'題'},'現代文と格闘する':{total:12,days:40,unit:'題'},'ゼロから覚醒 はじめよう現代文':{total:120,days:30,unit:'p'}},
+    '古文':{'望月光 古典文法 上':{total:320,days:30,unit:'p'},'望月光 古典文法 下':{total:320,days:30,unit:'p'},'マドンナ古文単語 230':{total:230,days:30,unit:'単語'},'読んでみて覚える古文単語 315':{total:315,days:40,unit:'単語'},'古文上達 基礎編':{total:32,days:30,unit:'題'},'古文上達 56':{total:56,days:45,unit:'題'}},
+    '物理':{'物理のエッセンス 力学・波動':{total:196,days:40,unit:'問'},'物理のエッセンス 電磁気・熱・原子':{total:190,days:40,unit:'問'},'良問の風 物理':{total:122,days:45,unit:'問'},'名問の森 力学・熱・波動Ⅰ':{total:52,days:30,unit:'問'},'物理重要問題集':{total:181,days:60,unit:'問'}},
+    '化学':{'基礎問題精講 化学':{total:130,days:45,unit:'題'},'化学重要問題集':{total:300,days:75,unit:'問'},'Do シリーズ 理論化学':{total:200,days:40,unit:'p'},'Do シリーズ 無機化学':{total:160,days:30,unit:'p'},'Do シリーズ 有機化学':{total:180,days:35,unit:'p'}},
+    '生物':{'基礎問題精講 生物':{total:130,days:40,unit:'題'},'生物重要問題集':{total:237,days:60,unit:'問'}},
+    '日本史':{'日本史 一問一答 完全版':{total:4600,days:90,unit:'問'},'HISTORIA 日本史精選問題集':{total:400,days:60,unit:'問'},'金谷の日本史「なぜ」と「流れ」がわかる本':{total:240,days:30,unit:'p'}},
+    '世界史':{'世界史 一問一答 完全版':{total:4600,days:90,unit:'問'},'タテから見る世界史':{total:240,days:30,unit:'p'},'ヨコから見る世界史':{total:220,days:30,unit:'p'},'実力をつける世界史 100題':{total:100,days:50,unit:'題'}},
+    '地理':{'村瀬のゼロからわかる地理B 系統地理':{total:330,days:40,unit:'p'},'村瀬のゼロからわかる地理B 地誌':{total:300,days:40,unit:'p'},'地理B 一問一答 完全版':{total:3000,days:60,unit:'問'}},
+  };
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const LS_KEY='sugoi_juku_progress_v1';
@@ -543,6 +590,87 @@ function renderBookPanel(){
     </div></div>`;
 }
 function renderMaster(){renderSubjList();renderBookPanel();}
+
+// ---- Master CSV Export ----
+function exportMasterCsv(){
+  const BOM='﻿';
+  const header='科目,参考書名,総数,単位,標準期間（日）\n';
+  const rows=Object.entries(MASTER).flatMap(([subj,books])=>
+    Object.entries(books).map(([name,d])=>
+      [subj,name,d.total,d.unit,d.days].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')
+    )
+  ).join('\n');
+  const blob=new Blob([BOM+header+rows],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='master_data.csv';
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+// ---- Master CSV Import ----
+function importMasterCsv(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const text=e.target.result.replace(/^﻿/,'');
+      const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+      if(lines.length<2){alert('データが見つかりません');return;}
+      const newMaster={};
+      for(let i=1;i<lines.length;i++){
+        const cols=parseMasterCsvRow(lines[i]);
+        if(cols.length<5)continue;
+        const [subj,name,totalStr,unit,daysStr]=cols;
+        const total=parseInt(totalStr)||1;
+        const days=parseInt(daysStr)||60;
+        if(!subj||!name)continue;
+        if(!newMaster[subj])newMaster[subj]={};
+        newMaster[subj][name]={total,unit,days};
+      }
+      // MASTERを上書き
+      Object.keys(MASTER).forEach(k=>delete MASTER[k]);
+      Object.assign(MASTER,newMaster);
+      selectedSubject=Object.keys(MASTER)[0]||'';
+      renderMaster();
+      alert(`読み込み完了。${Object.keys(newMaster).length}科目 / ${Object.values(newMaster).reduce((n,b)=>n+Object.keys(b).length,0)}冊を反映しました。`);
+    }catch(err){
+      alert('CSVの読み込みに失敗しました。書き出したファイルをそのまま使用してください。');
+      console.error(err);
+    }
+    input.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+function parseMasterCsvRow(row){
+  const result=[];let cur='',inQ=false;
+  for(let i=0;i<row.length;i++){
+    if(row[i]==='"'){if(inQ&&row[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(row[i]===','&&!inQ){result.push(cur.trim());cur='';}
+    else cur+=row[i];
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+// ---- master.js ダウンロード ----
+function downloadMasterJs(){
+  const lines=['// すごい塾 参考書マスターデータ','// このファイルを編集してGitHubにアップすると、両ツールに反映されます','','const MASTER = {'];
+  Object.entries(MASTER).forEach(([subj,books],si,sa)=>{
+    lines.push(`  '${subj}': {`);
+    const entries=Object.entries(books);
+    entries.forEach(([name,d],i)=>{
+      const comma=i<entries.length-1?',':'';
+      lines.push(`    '${name}': { total: ${d.total}, days: ${d.days}, unit: '${d.unit}' }${comma}`);
+    });
+    lines.push(`  }${si<sa.length-1?',':''}`);
+  });
+  lines.push('};');
+  const blob=new Blob([lines.join('\n')],{type:'text/javascript'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='master.js';
+  a.click();URL.revokeObjectURL(a.href);
+}
 function selectSubject(s){selectedSubject=s;renderSubjList();renderBookPanel();}
 function addSubject(){
   const inp=document.getElementById('newSubjInput'),name=inp.value.trim();

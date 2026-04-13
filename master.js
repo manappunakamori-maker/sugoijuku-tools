@@ -2,7 +2,7 @@
 // このファイルを編集してGitHubにアップすると、両ツールに反映されます
 // 単位の選択肢: p / 問 / 題 / 例題 / 単語 / 章
 
-const MASTER = {
+var MASTER = {
   '英語': {
     '速読英熟語':                      { total: 360,  days: 60,  unit: 'p'   },
     '英文法ポラリス 1':                { total: 180,  days: 45,  unit: 'p'   },
