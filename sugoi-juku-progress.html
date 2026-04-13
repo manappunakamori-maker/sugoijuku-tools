@@ -98,6 +98,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
 .book-table tr:last-child td{border-bottom:none}
 .del-btn{font-size:9px;padding:2px 6px;color:#bbb;border:1px solid #e0ddd5;border-radius:4px;cursor:pointer;background:none}
 .del-btn:hover{color:#993C1D;border-color:#993C1D}
+.edit-row-btn{font-size:9px;padding:2px 6px;color:#185FA5;border:1px solid #B5D4F4;border-radius:4px;cursor:pointer;background:none}
+.edit-row-btn:hover{background:#E6F1FB}
+.inline-edit-row td{background:#f7f6f2;padding:6px 8px}
+.inline-edit-row input,.inline-edit-row select{font-size:11px;height:24px;padding:2px 5px;border:1px solid #ddd;border-radius:4px;font-family:inherit}
+.btn-save-edit{font-size:10px;padding:3px 9px;background:#1a1a1a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-family:inherit}
+.btn-cancel-edit{font-size:10px;padding:3px 9px;background:#fff;color:#666;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-family:inherit}
 .add-book-form{background:#f7f6f2;border-radius:9px;padding:10px 12px}
 .add-book-form h3{font-size:10px;font-weight:600;color:#aaa;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
 .form-row{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end}
@@ -266,22 +272,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans',sans-serif;bac
   </div>
 </div>
 
+<script src="master.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const LS_KEY='sugoi_juku_progress_v1';
 
-let MASTER={
-  '英語':{'速読英熟語':{total:360,days:60,unit:'p'},'英文法ポラリス 1':{total:180,days:45,unit:'p'},'英文法ポラリス 2':{total:160,days:40,unit:'p'},'関正生の英語長文ポラリス 1':{total:10,days:30,unit:'問'},'関正生の英語長文ポラリス 2':{total:10,days:30,unit:'問'},'システム英単語':{total:2027,days:60,unit:'単語'},'鉄壁':{total:1600,days:90,unit:'単語'},'NextStage':{total:800,days:60,unit:'p'},'Vintage':{total:850,days:60,unit:'p'},'英語長文ハイパートレーニング 1':{total:6,days:18,unit:'題'},'英語長文ハイパートレーニング 2':{total:6,days:21,unit:'題'},'英語長文ハイパートレーニング 3':{total:6,days:21,unit:'題'}},
-  '数学':{'青チャート 数学Ⅰ+A':{total:364,days:90,unit:'例題'},'青チャート 数学Ⅱ+B':{total:411,days:120,unit:'例題'},'青チャート 数学Ⅲ':{total:181,days:90,unit:'例題'},'黄チャート 数学Ⅰ+A':{total:338,days:90,unit:'例題'},'黄チャート 数学Ⅱ+B':{total:375,days:100,unit:'例題'},'基礎問題精講 数学Ⅰ+A':{total:101,days:45,unit:'題'},'基礎問題精講 数学Ⅱ+B':{total:167,days:60,unit:'題'},'理系数学の良問プラチカ':{total:149,days:60,unit:'題'},'文系の数学 重要事項完全習得編':{total:132,days:45,unit:'題'}},
-  '現代文':{'入試現代文へのアクセス 基本編':{total:12,days:28,unit:'題'},'入試現代文へのアクセス 発展編':{total:12,days:28,unit:'題'},'現代文と格闘する':{total:12,days:40,unit:'題'},'ゼロから覚醒 はじめよう現代文':{total:120,days:30,unit:'p'}},
-  '古文':{'望月光 古典文法 上':{total:320,days:30,unit:'p'},'望月光 古典文法 下':{total:320,days:30,unit:'p'},'マドンナ古文単語 230':{total:230,days:30,unit:'単語'},'読んでみて覚える古文単語 315':{total:315,days:40,unit:'単語'},'古文上達 基礎編':{total:32,days:30,unit:'題'},'古文上達 56':{total:56,days:45,unit:'題'}},
-  '物理':{'物理のエッセンス 力学・波動':{total:196,days:40,unit:'問'},'物理のエッセンス 電磁気・熱・原子':{total:190,days:40,unit:'問'},'良問の風 物理':{total:122,days:45,unit:'問'},'名問の森 力学・熱・波動Ⅰ':{total:52,days:30,unit:'問'},'物理重要問題集':{total:181,days:60,unit:'問'}},
-  '化学':{'基礎問題精講 化学':{total:130,days:45,unit:'題'},'化学重要問題集':{total:300,days:75,unit:'問'},'Do シリーズ 理論化学':{total:200,days:40,unit:'p'},'Do シリーズ 無機化学':{total:160,days:30,unit:'p'},'Do シリーズ 有機化学':{total:180,days:35,unit:'p'}},
-  '生物':{'基礎問題精講 生物':{total:130,days:40,unit:'題'},'生物重要問題集':{total:237,days:60,unit:'問'}},
-  '日本史':{'日本史 一問一答 完全版':{total:4600,days:90,unit:'問'},'HISTORIA 日本史精選問題集':{total:400,days:60,unit:'問'},'金谷の日本史「なぜ」と「流れ」がわかる本':{total:240,days:30,unit:'p'}},
-  '世界史':{'世界史 一問一答 完全版':{total:4600,days:90,unit:'問'},'タテから見る世界史':{total:240,days:30,unit:'p'},'ヨコから見る世界史':{total:220,days:30,unit:'p'},'実力をつける世界史 100題':{total:100,days:50,unit:'題'}},
-  '地理':{'村瀬のゼロからわかる地理B 系統地理':{total:330,days:40,unit:'p'},'村瀬のゼロからわかる地理B 地誌':{total:300,days:40,unit:'p'},'地理B 一問一答 完全版':{total:3000,days:60,unit:'問'}},
-};
+// MASTERデータはmaster.jsから読み込み
 
 const PACES=[
   {key:'slow',mult:0.5,label:'半速',cls:'active-slow'},
@@ -524,12 +520,15 @@ function renderSubjList(){
 function renderBookPanel(){
   const books=MASTER[selectedSubject]||{};
   const rows=Object.entries(books).map(([name,d])=>`
-    <tr>
+    <tr id="bookrow_${encodeURIComponent(name)}">
       <td>${name}</td>
       <td style="text-align:right">${d.total.toLocaleString()}</td>
       <td style="text-align:center">${d.unit}</td>
       <td style="text-align:right">${d.days}日 <span style="font-size:9px;color:#bbb">(半速${d.days*2}日/倍速${Math.round(d.days/2)}日)</span></td>
-      <td style="text-align:center"><button class="del-btn" onclick="deleteBook('${selectedSubject}','${name.replace(/'/g,"\\'")}')">削除</button></td>
+      <td style="text-align:center;white-space:nowrap">
+        <button class="edit-row-btn" onclick="editBook('${selectedSubject}','${name.replace(/'/g,"\\'")}')">編集</button>
+        <button class="del-btn" style="margin-left:3px" onclick="deleteBook('${selectedSubject}','${name.replace(/'/g,"\\'")}')">削除</button>
+      </td>
     </tr>`).join('');
   document.getElementById('bookPanel').innerHTML=`
     <div style="font-size:13px;font-weight:600;margin-bottom:8px">「${selectedSubject}」<span style="font-size:11px;font-weight:400;color:#bbb"> ${Object.keys(books).length}冊</span></div>
@@ -563,6 +562,42 @@ function addBook(){
 function deleteBook(subj,name){
   if(!confirm(`「${name}」を削除しますか？`))return;
   delete MASTER[subj][name];renderBookPanel();renderSubjList();
+}
+function editBook(subj,name){
+  const d=MASTER[subj][name];
+  const rowId='bookrow_'+encodeURIComponent(name);
+  const row=document.getElementById(rowId);
+  if(!row)return;
+  // すでに編集中なら何もしない
+  if(row.nextSibling&&row.nextSibling.classList&&row.nextSibling.classList.contains('inline-edit-row'))return;
+  const units=['p','問','題','例題','単語','章'];
+  const unitOpts=units.map(u=>`<option${u===d.unit?' selected':''}>${u}</option>`).join('');
+  const editRow=document.createElement('tr');
+  editRow.className='inline-edit-row';
+  editRow.innerHTML=`<td colspan="5">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span style="font-size:10px;color:#888;font-weight:600">${name}</span>
+      <label style="font-size:9px;color:#999">総数</label>
+      <input type="number" id="ei_total" value="${d.total}" min="1" style="width:72px">
+      <label style="font-size:9px;color:#999">単位</label>
+      <select id="ei_unit" style="width:64px">${unitOpts}</select>
+      <label style="font-size:9px;color:#999">標準期間(日)</label>
+      <input type="number" id="ei_days" value="${d.days}" min="1" style="width:64px">
+      <button class="btn-save-edit" onclick="saveEditBook('${subj.replace(/'/g,"\'")}','${name.replace(/'/g,"\'")}')">保存</button>
+      <button class="btn-cancel-edit" onclick="cancelEditBook()">キャンセル</button>
+    </div>
+  </td>`;
+  row.parentNode.insertBefore(editRow,row.nextSibling);
+}
+function saveEditBook(subj,name){
+  const total=parseInt(document.getElementById('ei_total').value)||1;
+  const unit=document.getElementById('ei_unit').value;
+  const days=parseInt(document.getElementById('ei_days').value)||60;
+  MASTER[subj][name]={total,unit,days};
+  renderBookPanel();renderSubjList();
+}
+function cancelEditBook(){
+  document.querySelectorAll('.inline-edit-row').forEach(r=>r.remove());
 }
 
 // ---- Progress ----
